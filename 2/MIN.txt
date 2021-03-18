@@ -1,0 +1,11 @@
+#include <cstdio>
+
+using namespace std;
+
+int a, b;
+cin >> a >> b;
+
+if (a > b)
+	cout << "Минимум: " << b;
+else
+	cout << "Минимум: "<< a;

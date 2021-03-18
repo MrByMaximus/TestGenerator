@@ -1,6 +1,7 @@
 from tkinter import *
 import configparser
 import argparse
+import quiz2
 
 window = Tk()
 
