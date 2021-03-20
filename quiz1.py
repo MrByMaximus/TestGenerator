@@ -1,7 +1,7 @@
 # Sample script for fill-in-the-blanks questions
 from quizgen import *
 
-Q = Quiz('/listing.xml')
+Q = Quiz('output/listing.xml')
 # Add fill-in-the-blanks questions
 code = """
     #include <iostream>

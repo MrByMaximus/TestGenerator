@@ -1,0 +1,77 @@
+<?xml version="1.0" ?> <quiz>
+<question type="multichoice">
+ <name>
+  <text></text>
+ </name>
+ <questiontext format="html">
+  <text><![CDATA[Завершите программный код: <p> <pre>
+    __________
+ 
+    int main() {
+        std::cout << "I love coding!" << endl;
+ 
+        return 0;
+    }
+</pre>]]> 
+  </text>
+ </questiontext>
+ <answer fraction="100" format="html"> <text><![CDATA[#include <iostream>]]></text> </answer>
+ <answer fraction="-33.33333" format="html"> <text><![CDATA[#include <cstring>]]></text> </answer>
+ <answer fraction="-33.33333" format="html"> <text><![CDATA[return ;]]></text> </answer>
+ <answer fraction="-33.33333" format="html"> <text><![CDATA[std:]]></text> </answer>
+<answernumbering>none</answernumbering>
+<shuffleanswers>1</shuffleanswers>
+<single>true</single>
+</question>
+
+<question type="multichoice">
+ <name>
+  <text></text>
+ </name>
+ <questiontext format="html">
+  <text><![CDATA[Завершите программный код: <p> <pre>
+    #include <iostream>
+ 
+    int main() {
+        __________cout << "I love coding!" << endl;
+ 
+        return 0;
+    }
+</pre>]]> 
+  </text>
+ </questiontext>
+ <answer fraction="100" format="html"> <text><![CDATA[std::]]></text> </answer>
+ <answer fraction="-33.33333" format="html"> <text><![CDATA[#include <iostream>]]></text> </answer>
+ <answer fraction="-33.33333" format="html"> <text><![CDATA[std:]]></text> </answer>
+ <answer fraction="-33.33333" format="html"> <text><![CDATA[#include <cstring>]]></text> </answer>
+<answernumbering>none</answernumbering>
+<shuffleanswers>1</shuffleanswers>
+<single>true</single>
+</question>
+
+<question type="multichoice">
+ <name>
+  <text></text>
+ </name>
+ <questiontext format="html">
+  <text><![CDATA[Завершите программный код: <p> <pre>
+    #include <iostream>
+ 
+    int main() {
+        std::cout << "I love coding!" << endl;
+ 
+        __________
+    }
+</pre>]]> 
+  </text>
+ </questiontext>
+ <answer fraction="100" format="html"> <text><![CDATA[return 0;]]></text> </answer>
+ <answer fraction="-33.33333" format="html"> <text><![CDATA[#include <iostream>]]></text> </answer>
+ <answer fraction="-33.33333" format="html"> <text><![CDATA[return ;]]></text> </answer>
+ <answer fraction="-33.33333" format="html"> <text><![CDATA[std:]]></text> </answer>
+<answernumbering>none</answernumbering>
+<shuffleanswers>1</shuffleanswers>
+<single>true</single>
+</question>
+
+</quiz>
