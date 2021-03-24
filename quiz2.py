@@ -1,3 +1,4 @@
+#from main import score
 import func
 import subprocess
 import random
@@ -6,41 +7,55 @@ import os
 DEVNULL = os.open(os.devnull, os.O_WRONLY) 
 path1 = os.path.abspath('../../cods')
 
-count_code = len(os.listdir(path1))
-code = random.randint(1,count_code)
-type_quiz = random.randint(1,3)
+code = random.randint(1,len(os.listdir(path1)))
+#type_quiz = random.randint(1,4)
+type_quiz = 2
 
-file = open(path1+"/"+str(code)+".ini",'r')
+file = open(path1+"/"+str(2)+".txt",'r')
 quest = file.read()
 
 if type_quiz == 1: #логический
     quest = func.type_code_logic(quest)
 elif type_quiz == 2: #синтаксический
     quest = func.type_code_syntax(quest)
-else: #без ошибок
+elif type_quiz == 3: #выходной ответ
+    quest2 = func.type_code_output(quest)
+else:
     quest = func.read_code(quest)
 
-os_out = func.write_code(quest)
+if type_quiz == 3:
+    func.write_code_output(quest2[1])
+    os_out = func.write_code(quest2[0])
+else:
+    func.write_code_output(quest)
+    os_out = func.write_code(quest)
 file.close()
 
-with open(func.number_lines(os.path.abspath('quest.ini')), "r") as f:
+with open(func.number_lines(os.path.abspath('quest.txt')), "r") as f:
     text = f.read()
     print(text)
 
 check = subprocess.call(os_out, shell=True, stdout=DEVNULL, stderr=subprocess.STDOUT)
 if check == 0:
-    print("Введите ответ программы:")
-    ans = func.check_true(os_out)
+    if type_quiz == 3:
+        ans2 = func.check_os()
+        print("При каком значении программа выдаст результат: "+ans2)
+        ans = quest2[2]
+    else:
+        print("Введите ответ программы:")
+        ans = func.check_os()
 elif check == 1:
     print("Введите строчку кода, где допущена ошибка:")
     ans = func.check_false(os_out)
 else:
     print ("Ошибка!")
 
-func.delete_file()
-
+#func.delete_file()
+print(ans)
 answer = input()
 if answer == ans:
     print("Ответ правильный!")
+    #return 1
 else:
     print("Ответ неправильный!")
+    #return 0

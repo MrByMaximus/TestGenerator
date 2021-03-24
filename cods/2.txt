@@ -1,0 +1,16 @@
+#include <iostream>
+
+int func(int a, int b) {
+    int c = {number_0};
+    int result = {^0^}a {action_0} b{^1^}b {action_0} a{^2^}a {action_0} b {action_1} c{^-^};
+    return result;
+}
+
+int main() {
+    int a = {number_1};
+    int b = {number_2};
+
+    std::cout << "result: " << func(a,b);
+
+    return 0;
+}

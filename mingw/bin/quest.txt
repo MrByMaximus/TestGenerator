@@ -1,0 +1,16 @@
+1 #include <iostream>
+2 
+3 int func(int a, int b, int c) {
+4     int result = a / b;
+5     return result;
+6 }
+7 
+8 int main() {
+9     int c = 29;
+10     int a = 46;
+11     int b = 59;
+12 
+13     std::cout << "result: " << func(a,c);
+14 
+15     return 0;
+16 }

@@ -2,6 +2,9 @@ from tkinter import *
 import configparser
 import argparse
 import quiz2
+from jinja2 import Template
+
+score = 0
 
 window = Tk()
 
