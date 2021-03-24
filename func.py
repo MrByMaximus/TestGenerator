@@ -192,7 +192,8 @@ def check_os():
 def check_true(os_out):
     ans = subprocess.check_output(os_out, shell=True, encoding=cmd_codepage, stderr=subprocess.STDOUT)
     os.remove(os.path.join(os_out))
-    return ans
+    index = ans.find(":")
+    return ans[index+2:]
 
 def check_false(os_out):
     process = subprocess.Popen(os_out, shell=True, stdout=subprocess.PIPE, encoding=cmd_codepage, stderr=subprocess.STDOUT)
@@ -211,7 +212,7 @@ def check_false(os_out):
 def number_lines(filename, start=1):
     with fileinput.FileInput(filename, inplace=True, backup='.bak') as file:
         for n, line in enumerate(file, start=start):
-            print(n, line, end='')
+            print(n, '\t', line, end='')
     os.unlink(filename + '.bak')
     return filename
 
