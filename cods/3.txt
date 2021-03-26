@@ -1,5 +1,4 @@
 #include <iostream>
-
 {^0^}void func(int a, int b) {
     std::cout << a {action_0} b;
     
@@ -7,12 +6,9 @@
     int result = a {action_0} b;
     return result;
 }{^-^}
-
 int main() {
     int a = {number_1};
     int b = {number_2};
-
     std::cout << "result: " << func(a, b);
-
     return 0;
 }

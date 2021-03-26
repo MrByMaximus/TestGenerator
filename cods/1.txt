@@ -1,9 +1,7 @@
 #include <iostream>
-
 int main() {
     int a = {number_0};
     int b = {number_1};
-
     {^0^}std::cout << "min: ";
     if (a > b)
     {^1^}std::cout << "max: ";
@@ -11,6 +9,5 @@ int main() {
 	    std::cout << b;
     else
 	    std::cout << a;
-
     return 0;
 }

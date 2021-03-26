@@ -60,13 +60,9 @@ def type_code_output(quest):
     if choice == 1:
         if count[0] != 0:
             j = 0
-            if count[0] == 3:
-                first = 1
-            else:
-                first = 0
             number = []
-            num = random.randint(first,count[0])
-            for i in range(first,count[0]):
+            num = random.randint(0,count[0])
+            for i in range(0,count[0]):
                 number.append(str(random.randint(1,99)))
                 quest = re.sub("{number_"+str(i)+"}", number[j], quest)
                 if i != num:
@@ -97,7 +93,7 @@ def type_code_error(quest,error):
     text = quest.split()
     error_choice = random.choice(error)
     count_error = 0
-
+    print(error_choice)
     for word in text:
         if word.find(error_choice) != -1:
             count_error += 1
@@ -105,27 +101,36 @@ def type_code_error(quest,error):
     if count_error != 0:
         index = 0
         quest2 = quest
-        num_error = random.randint(1,count_error)
-        for i in range(1,count_error):
+        num_error = random.randint(0,count_error-1)
+        for i in range(count_error):
+
             index2 = quest2.find(error_choice)+len(error_choice)
             index += index2
             quest2 = quest2[index2:]
             if i == num_error:
                 quest = quest[:index-len(error_choice)] + quest[index:]
                 break
-
+ 
     return quest
 
 def type_code_logic(quest):
     quest = read_code(quest)
-    error = ['int','return 0;','std::','==']
+    #chance = random.randint(1,2)
+    chance = 2
+    error = ['int','std::'] #,'=='
     error_replace = ['','','','=']
-    return type_code_error(quest,error)
+
+    if chance == 1:
+        quest = re.sub("return 0;", "", quest) #Он не видит в этом ошибку
+    else:
+        quest = type_code_error(quest,error)
+
+    return quest
 
 def type_code_syntax(quest):
     quest = read_code(quest)
-    #chance = random.randint(1,3)
-    chance = 2
+    chance = random.randint(1,3)
+    #chance = 2
     error = [';','<<','{','}','"','(',')']
     error_replace = ['','','','=']
     text = quest.split()
@@ -148,13 +153,14 @@ def type_code_syntax(quest):
     elif chance == 2:
         type_choice = ['bool','string','char']
         quest = re.sub("int result", random.choice(type_choice)+" result", quest)
+    else:
+        quest = type_code_error(quest, error)
 
     return quest
 
 def read_code(quest):
     sign = ['+','-','/','*']
     count = count_num(quest)
-
     quest = noise(quest)
 
     if count[0] != 0:
@@ -184,29 +190,32 @@ def delete_file():
 
 def check_os():
     if sys.platform == "linux" or sys.platform == "linux2":
-        ans = check_true("./quest") #Проверить в linux
+        ans = "./quest" #Проверить в linux
     else:
-        ans = check_true("quest.exe")
+        ans = "quest.exe"
+
     return ans
 
 def check_true(os_out):
     ans = subprocess.check_output(os_out, shell=True, encoding=cmd_codepage, stderr=subprocess.STDOUT)
     os.remove(os.path.join(os_out))
     index = ans.find(":")
+
     return ans[index+2:]
 
 def check_false(os_out):
     process = subprocess.Popen(os_out, shell=True, stdout=subprocess.PIPE, encoding=cmd_codepage, stderr=subprocess.STDOUT)
     tmp = process.stdout.read()
-    tmp = tmp.replace(path1+":","")
+    #print(tmp)
+    tmp = tmp.replace("quest.cpp:","")
     tmp = tmp.replace(" In function 'int main()':\n","")
-    tmp = tmp.replace(" In function 'int func(int, int)':\n","")
+    tmp = tmp.replace(" In function 'int func(int, int)':\n","") #это не нормально
     #print(tmp)
     index = tmp.find(":")
     ans = ''
     for i in range(index):
         ans += ''.join(tmp[i])
-    #print(ans)
+
     return ans
 
 def number_lines(filename, start=1):

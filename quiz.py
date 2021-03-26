@@ -1,4 +1,3 @@
-#from main import score
 import func
 import subprocess
 import random
@@ -10,8 +9,7 @@ def question():
 
     code = random.randint(1,len(os.listdir(path1)))
     #type_quiz = random.randint(1,4)
-    type_quiz = 4
-
+    type_quiz = 1
     file = open(path1+"/"+str(2)+".txt",'r')
     quest = file.read()
 
@@ -34,21 +32,20 @@ def question():
 
     with open(func.number_lines(os.path.abspath('quest.txt')), "r") as f:
         text = f.read()
-        #print(text)
 
     check = subprocess.call(os_out, shell=True, stdout=DEVNULL, stderr=subprocess.STDOUT)
     if check == 0:
         if type_quiz == 3:
-            ans2 = func.check_os()
+            ans2 = func.check_true(func.check_os())
             quiz = "При каком значении программа выдаст результат: "+ans2
             ans = quest2[2]
         else:
             quiz = "Введите ответ программы:"
-            ans = func.check_os()
-    elif check == 1:
+            ans = func.check_true(func.check_os())
+    else:
         quiz = "Введите строчку кода, где допущена ошибка:"
         ans = func.check_false(os_out)
 
     func.delete_file()
-
-    return [text,ans,quiz]
+    #print("Ответ: "+ans)
+    return [text,ans,quiz,type_quiz]
