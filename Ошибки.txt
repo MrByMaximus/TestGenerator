@@ -24,3 +24,10 @@ if count[1] != 0:
                     quest2 = re.sub("{action_"+str(i)+"}", action[i], quest)
                 else:
                     out = action[num]
+
+if ans1 == int(self.ans[i]):
+                    ans1 += 1
+                if ans2 == int(self.ans[i]):
+                    ans2 += 1
+                if ans3 == int(self.ans[i]):
+                    ans3 += 1

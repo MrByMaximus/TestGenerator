@@ -4,12 +4,15 @@ import subprocess
 import ctypes
 import os
 import re
+import ast
 import fileinput
 
 cmd_codepage = os.device_encoding(1) or ctypes.windll.kernel32.GetOEMCP()
 os.chdir("mingw/bin")
 path1 = os.path.abspath('quest.cpp')
 path2 = os.path.abspath('quest.txt')
+generator = open(os.path.abspath('../../generator.ini'),'r')
+generator = ast.literal_eval(generator.read())
 
 def count_num(quest):
     text = quest.split()
@@ -49,9 +52,9 @@ def noise(quest):
 
 def type_code_output(quest):
     quest2 = quest
-    sign = ['+','-','/','*']
     count = count_num(quest)
     choice = random.randint(1,2)
+    check_division = 0
     out = ''
 
     quest = noise(quest)
@@ -61,39 +64,62 @@ def type_code_output(quest):
         if count[0] != 0:
             j = 0
             number = []
-            num = random.randint(0,count[0])
-            for i in range(0,count[0]):
-                number.append(str(random.randint(1,99)))
+            num = random.randint(0,count[0]-1)
+            for i in range(count[0]):
+                number.append(str(random.randint(generator['from_number'],generator['to_number'])))
                 quest = re.sub("{number_"+str(i)+"}", number[j], quest)
                 if i != num:
                     quest2 = re.sub("{number_"+str(i)+"}", number[j], quest2)
                 else:
+                    quest2 = re.sub("{number_"+str(i)+"}", "{number}", quest2)
                     out = number[num]
                 j += 1
         if count[1] != 0:
             action = []
             for i in range(count[1]):
-                action.append(str(random.choice(sign)))
+                action.append(str(random.choice(generator['sign_for_action'])))
                 quest = re.sub("{action_"+str(i)+"}", action[i], quest)
                 quest2 = re.sub("{action_"+str(i)+"}", action[i], quest2)
+                if action[i] == '/':
+                    check_division = 1
+        out2 = "{number}"
     else:
         if count[1] != 0:
-            num = random.randint(0,count[1])
-            quest = re.sub("{action_"+str(num)+"}", str(random.choice(sign)), quest)
+            j = 0
+            action = []
+            num = random.randint(0,count[1]-1)
+            for i in range(count[1]):
+                action.append(str(random.choice(generator['sign_for_action'])))
+                quest = re.sub("{action_"+str(i)+"}", action[j], quest)
+                if action[i] == '/':
+                    check_division = 1
+                if i != num:
+                    quest2 = re.sub("{action_"+str(i)+"}", action[j], quest2)
+                else:
+                    quest2 = re.sub("{action_"+str(i)+"}", "{action}", quest2)
+                    out = action[num]
+                j += 1
         if count[0] != 0:
             number = []
             for i in range(count[0]):
-                number.append(str(random.randint(1,99)))
+                number.append(str(random.randint(generator['from_number'],generator['to_number'])))
                 quest = re.sub("{number_"+str(i)+"}", number[i], quest)
                 quest2 = re.sub("{number_"+str(i)+"}", number[i], quest2)
+        out2 = "{action}"
 
-    return [quest,quest2,out]
+    if check_division == 1:
+        quest = re.sub("int","double",quest)
+        quest = re.sub("double main","int main",quest)
+        quest2 = re.sub("int","double",quest2)
+        quest2 = re.sub("double main","int main",quest2)
+
+    return [quest,quest2,out,out2] #Сделать проверку на единественный верный овтет, если при вычислениях будут 1 и больше вариантов
 
 def type_code_error(quest,error):
     text = quest.split()
     error_choice = random.choice(error)
     count_error = 0
-    print(error_choice)
+
     for word in text:
         if word.find(error_choice) != -1:
             count_error += 1
@@ -114,62 +140,80 @@ def type_code_error(quest,error):
     return quest
 
 def type_code_logic(quest):
-    quest = read_code(quest)
-    #chance = random.randint(1,2)
-    chance = 2
+    quest2 = quest
+    chance = random.randint(2)
+    #chance = 1
     error = ['int','std::'] #,'=='
     error_replace = ['','','','=']
+    out = ''
 
-    if chance == 1:
-        quest = re.sub("return 0;", "", quest) #Он не видит в этом ошибку
-    else:
-        quest = type_code_error(quest,error)
+    
+    quest = type_code_error(quest,error)
 
-    return quest
+    return [quest,quest2,out]
 
 def type_code_syntax(quest):
-    quest = read_code(quest)
-    chance = random.randint(1,3)
-    #chance = 2
+    quest2 = quest
+    #choice = random.randint(1,4)
+    choice = 1
     error = [';','<<','{','}','"','(',')']
     error_replace = ['','','','=']
     text = quest.split()
+    out = ''
+    out_error = []
 
-    if chance == 1:
+    if quest.find("func(a") and choice == 1: #не работает
         index1 = quest.find("func(a")
-        if index1 != -1:
-            index = []
-            index.append(quest.find("(",index1)-1)
-            index2 = quest.find(")",index1)
-            i = index1+4
-            while i != index2:
-                index1 = quest.find(",",index1+2,index2)
-                if index1 != -1:
-                    index.append(index1)
-                i += 2
-            index.append(index[len(index)-1])
-            num = random.randint(1,len(index)-1)
-            quest = quest[:index[num]] + quest[index[len(index)-1]:] #в конце добавить скобку
-    elif chance == 2:
-        type_choice = ['bool','string','char']
-        quest = re.sub("int result", random.choice(type_choice)+" result", quest)
+        index = []
+        index.append(quest.find("(",index1)-1)
+        index2 = quest.find(")",index1)
+        i = index1+4
+        while i != index2:
+            index1 = quest.find(",",index1+2,index2)
+            if index1 != -1:
+                index.append(index1)
+            i += 2
+        index.append(index[len(index)-1])
+        num = random.randint(1,len(index)-1)
+        quest = quest[:index[num]] + quest[index[len(index)-1]:] #в конце добавить скобку
+    elif quest.find("return result;") != -1 and choice == 2:
+        error_choice = ['char','bool','string']
+        quest = re.sub("return result;", "", quest) #с делением идут неправильные результаты
+        out_error.append("return result")
+        out_error.append(random.choice(error_choice)+" result;")
+        out_error.append("return")
+        out = "return result;"
+    elif quest.find("==") and choice == 3:
+        with open(path1, 'r') as fp:
+            for n, line in enumerate(fp, 1):
+                if line.find("==") != -1:
+                    quest2 = re.sub("==","=",quest2)
+                    out = n - 1
     else:
         quest = type_code_error(quest, error)
 
-    return quest
+    return [quest,quest2,out,out_error]
 
 def read_code(quest):
-    sign = ['+','-','/','*']
     count = count_num(quest)
     quest = noise(quest)
+    check_division = 0
 
     if count[0] != 0:
         for i in range(count[0]):
-            quest = re.sub("{number_"+str(i)+"}", str(random.randint(1,99)), quest)
+            quest = re.sub("{number_"+str(i)+"}", str(random.randint(generator['from_number'],generator['to_number'])), quest)
     
     if count[1] != 0:
+        action = []
         for i in range(count[1]):
-            quest = re.sub("{action_"+str(i)+"}", str(random.choice(sign)), quest) 
+            action.append(str(random.choice(generator['sign_for_action'])))
+            if action[i] == '/':
+                check_division = 1
+            quest = re.sub("{action_"+str(i)+"}", action[i], quest)
+
+    if check_division == 1:
+        quest = re.sub("int","double",quest)
+        quest = re.sub("double main","int main",quest)
 
     return quest
 
@@ -187,18 +231,18 @@ def write_code(quest):
 def delete_file():
     os.remove(os.path.join(path1))
     os.remove(os.path.join(path2))
+    os.remove(os.path.join("quest.exe")) #Надо еще для linux
 
-def check_os():
+def check_os(os_out):
     if sys.platform == "linux" or sys.platform == "linux2":
-        ans = "./quest" #Проверить в linux
+        os_out += " && ./quest" #Проверить в linux
     else:
-        ans = "quest.exe"
+        os_out += " && quest.exe"
 
-    return ans
+    return os_out
 
 def check_true(os_out):
     ans = subprocess.check_output(os_out, shell=True, encoding=cmd_codepage, stderr=subprocess.STDOUT)
-    os.remove(os.path.join(os_out))
     index = ans.find(":")
 
     return ans[index+2:]
@@ -206,7 +250,7 @@ def check_true(os_out):
 def check_false(os_out):
     process = subprocess.Popen(os_out, shell=True, stdout=subprocess.PIPE, encoding=cmd_codepage, stderr=subprocess.STDOUT)
     tmp = process.stdout.read()
-    #print(tmp)
+    print(tmp)
     tmp = tmp.replace("quest.cpp:","")
     tmp = tmp.replace(" In function 'int main()':\n","")
     tmp = tmp.replace(" In function 'int func(int, int)':\n","") #это не нормально
@@ -223,37 +267,5 @@ def number_lines(filename, start=1):
         for n, line in enumerate(file, start=start):
             print(n, '\t', line, end='')
     os.unlink(filename + '.bak')
+
     return filename
-
-def addCompleteCodeQuestions(self, title, questionPattern, sourceCode, tokens, distractors = [], numQuestions=-1):
-    pairs = []
-    for token in tokens:
-        code = sourceCode.replace(token, "__________")
-        pairs.append((code, token))
-    self.addMultipleChoiceQuestionsFromPairs(title, questionPattern, pairs, distractors, numQuestions)
-
-def addMultipleChoiceQuestionsFromPairs(self, title, questionPattern, solutionPairs, moreDistractors=[], numQuestions=-1):
-
-    L = len(solutionPairs)
-    if numQuestions == -1: # auto
-        numQuestions = L
-    if numQuestions <= L: # prevent questions sharing question text
-        pairs = sample(solutionPairs, numQuestions)
-    else:
-        pairs = [ sample(solutionPairs, 1)[0] for _ in range(numQuestions) ]
-
-    for pair in pairs:
-        question, answer = pair[0], pair[1]
-
-        if isinstance(question, Basic): # sympy expr
-            question = f"\({latex(question)}\)"
-
-        q = questionPattern.replace("%s", question)
-
-        bads = [ pair[1] for pair in solutionPairs] + moreDistractors
-        bads = list(set(bads))
-        while answer in bads:
-            bads.remove(answer)
-
-        shuffle(bads)
-        self.addMultipleChoiceQuestion(title, q, [answer] + bads[0:3])

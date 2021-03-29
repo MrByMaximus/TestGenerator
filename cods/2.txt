@@ -1,7 +1,7 @@
 #include <iostream>
 int func(int a, int b) {
     int c = {number_0};
-    int result = {^0^}a {action_0} b{^1^}b {action_0} a{^2^}a {action_0} b {action_1} c{^-^};
+    int result = {^0^}a {action_0} b{^1^}b {action_0} a{^2^}a {action_0} b {action_1} c{^3^}a {action_0} c {action_1} b{^4^}b {action_0} a {action_1} c{^5^}b {action_0} c {action_1} a{^6^}c {action_0} a {action_1} b{^7^}c {action_0} b {action_1} a{^-^};
     return result;
 }
 int main() {

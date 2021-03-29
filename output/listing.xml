@@ -1,77 +1,53 @@
 <?xml version="1.0" ?> <quiz>
 <question type="multichoice">
  <name>
-  <text></text>
+  <text>Вопрос №1</text>
  </name>
  <questiontext format="html">
-  <text><![CDATA[Завершите программный код: <p> <pre>
-    #include <iostream>
- 
-    int main() {
-        __________cout << "I love coding!" << endl;
- 
-        return 0;
-    }
-</pre>]]> 
+  <text><![CDATA[1 	 #include <iostream>
+ <br />2 	 int func(int a, int b) {
+ <br />3 	     int c = 13;
+ <br />4 	     int result = b * c + a;
+ <br />5 	     return result;
+ <br />6 	 }
+ <br />7 	 int main() {
+ <br />8 	     int a = 26;
+ <br />9 	     int b = 73;
+ <br />10 	     std::cout << "result: " << func(a,b);
+ <br />11 	     return 0;
+ <br />12 	 } <br /><br />Введите ответ программы:]]> 
   </text>
  </questiontext>
- <answer fraction="100" format="html"> <text><![CDATA[std::]]></text> </answer>
- <answer fraction="-33.33333" format="html"> <text><![CDATA[return 0;]]></text> </answer>
- <answer fraction="-33.33333" format="html"> <text><![CDATA[return ;]]></text> </answer>
- <answer fraction="-33.33333" format="html"> <text><![CDATA[#include <cstring>]]></text> </answer>
+ <answer fraction="100" format="html"> <text><![CDATA[975]]></text> </answer>
+ <answer fraction="-33.33333" format="html"> <text><![CDATA[969]]></text> </answer>
+ <answer fraction="-33.33333" format="html"> <text><![CDATA[966]]></text> </answer>
+ <answer fraction="-33.33333" format="html"> <text><![CDATA[977]]></text> </answer>
 <answernumbering>none</answernumbering>
 <shuffleanswers>1</shuffleanswers>
 <single>true</single>
 </question>
 
-<question type="multichoice">
+<question type="shortanswer">
  <name>
-  <text></text>
+  <text>Вопрос №2</text>
  </name>
  <questiontext format="html">
-  <text><![CDATA[Завершите программный код: <p> <pre>
-    __________
- 
-    int main() {
-        std::cout << "I love coding!" << endl;
- 
-        return 0;
-    }
-</pre>]]> 
+  <text><![CDATA[1 	 #include <iostream>
+ <br />2 	 double func(double a, double b) {
+ <br />3 	     double c = 43;
+ <br />4 	     double result = b / a;
+ <br />5 	     return result;
+ <br />6 	 }
+ <br />7 	 int main() {
+ <br />8 	     double a = 32;
+ <br />9 	     double b = 100;
+ <br />10 	     std::cout << "result: " << func(a,b);
+ <br />11 	     return 0;
+ <br />12 	 } <br /><br />Введите ответ программы:]]> 
   </text>
  </questiontext>
- <answer fraction="100" format="html"> <text><![CDATA[#include <iostream>]]></text> </answer>
- <answer fraction="-33.33333" format="html"> <text><![CDATA[return ;]]></text> </answer>
- <answer fraction="-33.33333" format="html"> <text><![CDATA[return 0;]]></text> </answer>
- <answer fraction="-33.33333" format="html"> <text><![CDATA[#include <cstring>]]></text> </answer>
-<answernumbering>none</answernumbering>
-<shuffleanswers>1</shuffleanswers>
-<single>true</single>
-</question>
-
-<question type="multichoice">
- <name>
-  <text></text>
- </name>
- <questiontext format="html">
-  <text><![CDATA[Завершите программный код: <p> <pre>
-    #include <iostream>
- 
-    int main() {
-        std::cout << "I love coding!" << endl;
- 
-        __________
-    }
-</pre>]]> 
-  </text>
- </questiontext>
- <answer fraction="100" format="html"> <text><![CDATA[return 0;]]></text> </answer>
- <answer fraction="-33.33333" format="html"> <text><![CDATA[#include <cstring>]]></text> </answer>
- <answer fraction="-33.33333" format="html"> <text><![CDATA[return ;]]></text> </answer>
- <answer fraction="-33.33333" format="html"> <text><![CDATA[std:]]></text> </answer>
-<answernumbering>none</answernumbering>
-<shuffleanswers>1</shuffleanswers>
-<single>true</single>
+<usecase>0</usecase>
+<answer fraction="100" format="moodle_auto_format"><text>3.1</text></answer>
 </question>
 
 </quiz>

@@ -1,14 +1,14 @@
 #include <iostream>
-{^0^}void func(int a, int b) {
-    std::cout << a {action_0} b;
-    
-}{^1^}int func(int a, int b) {
-    int result = a {action_0} b;
-    return result;
-}{^-^}
 int main() {
-    int a = {number_1};
-    int b = {number_2};
-    std::cout << "result: " << func(a, b);
+    int a = {number_0};
+    int b = {number_1};
+    int count = 0;
+    {^0^}for (int i = 0; i < b; i++) {
+        count += a;
+    }
+    {^1^}for (int i = 0; i < a; i++) {
+        count += b;
+    }{^-^}
+    std::cout << "result: " << count;
     return 0;
 }

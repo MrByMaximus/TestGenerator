@@ -7,6 +7,8 @@ int main() {
     {^1^}std::cout << "max: ";
     if (a < b){^-^}
 	    std::cout << b;
+    else if (a == b)
+            std::cout << "The numbers are equal";
     else
 	    std::cout << a;
     return 0;
