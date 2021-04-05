@@ -1,7 +1,7 @@
 from tkinter import messagebox as mb
 from tkinter import *
 import tkinter as tk
-import os
+import sys, os
 import random
 import numpy
 import ctypes
