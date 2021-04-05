@@ -1,14 +1,16 @@
 #include <iostream>
+void func(int a, int b) {
+    int result = 0;
+    {^0^}for (int i = 0; i < b; i++) {
+	result += a;
+    }{^1^}for (int i = 0; i < a; i++) {
+	result += b;
+    }{^-^}
+    std::cout << "result: " << result;
+}
 int main() {
     int a = {number_0};
     int b = {number_1};
-    int count = 0;
-    {^0^}for (int i = 0; i < b; i++) {
-        count += a;
-    }
-    {^1^}for (int i = 0; i < a; i++) {
-        count += b;
-    }{^-^}
-    std::cout << "result: " << count;
+    func(a,b);
     return 0;
 }
