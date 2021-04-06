@@ -9,7 +9,7 @@ import fileinput
 from functools import partial
 from quiz import Quiz
 from generation import Generation
-from generation import generator, path, path3
+from generation import generator, path, path_xml
 
 class Main(tk.Tk): #Оконное приложение
     def __init__(self):
@@ -95,10 +95,17 @@ class Main(tk.Tk): #Оконное приложение
         except ValueError:
             return False
 
+    def is_number(self, str):
+        try:
+            float(str)
+            return True
+        except ValueError:
+            return False
+
     def edit_quest(self, filename, start=1):
         with fileinput.FileInput(filename, inplace=True, backup='.bak') as file:
             for n, line in enumerate(file, start=start):
-                print(n, "&nbsp;&nbsp;&nbsp;&nbsp;", line, "<br />", '\n') #отступы
+                print(n, "&nbsp;&nbsp;&nbsp;&nbsp;", line, "<br />")             
         os.unlink(filename + '.bak')
         return filename
 
@@ -118,7 +125,7 @@ class Main(tk.Tk): #Оконное приложение
         self.count_number = int(self.count_tests.get())
         self.score_count = int(self.count_tests.get())
         self.frame1.destroy()
-        self.geometry('800x600')
+        self.geometry('880x660')
         self.resizable(width=True, height=True)
 
         self.canvas = tk.Canvas(self)
@@ -141,9 +148,9 @@ class Main(tk.Tk): #Оконное приложение
             self.quest.append(quiz[0])
             self.quest_title.append(quiz[2])
             self.answer.append(quiz[1])
-            choice = random.randint(1,2) #множественная выборка или ответ
+            output = 1
             quest = self.quest_title[i]+"<br /><br />"
-            with open(self.edit_quest(path3), "r") as f:
+            with open(self.edit_quest(path_xml), "r") as f:
                 quest += f.read()
 
             self.frame.append(tk.Frame(self.frame2, borderwidth=2, relief="groove"))
@@ -155,7 +162,12 @@ class Main(tk.Tk): #Оконное приложение
             self.question[i].grid(row=j, column=0, padx=1, pady=1)
             self.question_title[i].grid(row=j+1, column=0, padx=1, pady=1)
 
-            if quiz[3] == 0 and choice == 1: #число ответ
+            if self.is_number(self.answer[i]) == False:
+                choice = 1 # вводный ответ по умолчанию
+            else:
+                choice = random.randint(2,3) #множественная выборка или вводный ответ
+            print(choice)
+            if self.is_number(self.answer[i]) and quiz[3] == 0 and choice == 3: #число ответ
                 if self.is_float(self.answer[i]):
                     fractional_number_answer = list(generator['fractional_number_answer'])
                     self.answer[i] = round(float(self.answer[i]),generator['fractional_number'])
@@ -178,7 +190,8 @@ class Main(tk.Tk): #Оконное приложение
                             break
                 self.add_correct_answer(i)
                 self.create_input(i,j)
-            elif self.answer[i] in generator['sign_for_action'] and quiz[3] == 0 and choice == 1: #знаковый ответ
+                output = 2
+            elif self.answer[i] in generator['sign_for_action'] and quiz[3] == 0 and choice == 3: #знаковый ответ
                 sign = generator['sign_for_action']
                 random.shuffle(sign)
                 k = 0
@@ -191,30 +204,34 @@ class Main(tk.Tk): #Оконное приложение
                             break
                 self.add_correct_answer(i)
                 self.create_input(i,j)
-            elif quiz[4] and quiz[3] == 1 and choice == 1: #варианты ответов для типа вопроса с ошибкой
+                output = 2
+            elif len(quiz[4]) != 0 and quiz[3] == 1 and choice != 1: #варианты ответов для типа вопроса с ошибкой
                 random.shuffle(quiz[4]) #list_error_answers
-                self.correct_answer[i].append(self.answer[i])
+                self.correct_answer[i].append(self.answer[i]) #херово работает куда попало
                 for num in quiz[4]:
                     self.correct_answer[i].append(str(num))
                 self.add_correct_answer(i)
                 self.create_input(i,j)
-            elif choice == 2: #Вводный ответ
+                output = 2
+            elif choice == 1 or (self.is_number(self.answer[i]) and choice == 2) or (self.answer[i] in generator['sign_for_action'] and choice == 2) and quiz[3] == 0: #Вводный ответ
                 if self.is_float(self.answer[i]):
                     self.answer[i] = round(float(self.answer[i]),generator['fractional_number'])
                 self.input_answer_error.append([]) #заглушки
                 self.answer_check.append([])
                 self.add_correct_answer(i)
+                #print(self.input_answer)
                 self.input_answer.append(tk.Entry(self.frame[i], width=30, font=40))
                 self.input_answer[i].grid(row=j+1, column=1, padx=1, pady=1)
                 self.button_answer[i].bind('<Button-1>', partial(self.check_answer, i))
                 self.button_answer[i].grid(row=j+1, column=2, padx=1, pady=1)
+                output = 1
             print("Ответ: "+str(self.answer[i]))
             j += 2
 
-            if choice == 1:
-                self.Quiz.addMultipleChoiceQuestion("Вопрос №"+str(i+1), quest, self.correct_answer[i])
-            elif choice == 2:
+            if output == 1:
                 self.Quiz.addShortAnswerQuestion("Вопрос №"+str(i+1), quest, str(self.answer[i]))
+            elif output == 2:
+                self.Quiz.addMultipleChoiceQuestion("Вопрос №"+str(i+1), quest, self.correct_answer[i])
         q.delete_file()
         self.Quiz.close()
 

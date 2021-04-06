@@ -1,15 +1,15 @@
 #include <iostream>
 int main() {
-    int a = {number_0};
-    int b = {number_1};
+    int a = {number};
+    int b = {number};
     {^0^}std::cout << "min: ";
     if (a > b)
     {^1^}std::cout << "max: ";
     if (a < b){^-^}
-	    std::cout << b;
+	std::cout << b;
     else if (a == b)
-            std::cout << "The numbers are equal";
+	std::cout << "The numbers are equal";
     else
-	    std::cout << a;
+	std::cout << a;
     return 0;
 }

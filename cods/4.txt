@@ -1,0 +1,8 @@
+#include <iostream>
+#include <cstring>
+int main()
+{
+    {^0^}char str[] = "{dictionary}";{^1^}std::string str = "{dictionary}";{^-^}
+    std::cout << "The output word: " << str;
+    return 0;
+}

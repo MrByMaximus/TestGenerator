@@ -2,7 +2,7 @@ import webbrowser, sys, os
 from sympy.core.basic import Basic
 from sympy import *
 from contextlib import redirect_stdout
-from jinja2 import Template
+#from jinja2 import Template
 from generation import generator
 
 class Quiz: #Запись в html и xml
@@ -13,7 +13,7 @@ class Quiz: #Запись в html и xml
         self.htmlFilename = str(htmlFilename)
         self.f = open(filename, 'w', encoding="utf-8")
         with redirect_stdout(self.f):
-            print('<?xml version="1.0" ?> <quiz>')
+            print('<?xml version="1.0" ?><quiz>')
         file = open(htmlFilename, 'w', encoding="utf-8")
         file.close()
 
@@ -23,8 +23,8 @@ class Quiz: #Запись в html и xml
 
         with redirect_stdout(self.f):
             self.questionHeader("shortanswer", name, question)
-            xml = Template('<usecase>0</usecase>\n<answer fraction="100" format="moodle_auto_format"><text> {{answer}} </text></answer>\n</question>\n')
-            print(xml.render(answer=answer))
+            xml = f'<usecase>0</usecase>\n<answer fraction="100" format="moodle_auto_format"><text> {answer} </text></answer>\n</question>\n'
+            print(xml)
 
         self.addHtmlHeader()
         self.addHtmlQuestionBlock(name, question, 'shortanswer')
@@ -50,11 +50,11 @@ class Quiz: #Запись в html и xml
 
         with redirect_stdout(self.f):
             self.questionHeader("multichoice", name, question)
-            xml = Template(' <answer fraction="100" format="html"><text><![CDATA[ {{correct_answer}} ]]></text></answer>')
-            print(xml.render(correct_answer=choiceList[0]))
+            xml = f' <answer fraction="100" format="html"><text><![CDATA[ {choiceList[0]} ]]></text></answer>'
+            print(xml)
             for item in choiceList[1:]:
-                xml = Template(' <answer fraction="-33.33333" format="html"> <text><![CDATA[ {{incorrect_answer}} ]]></text></answer>')
-                print(xml.render(incorrect_answer=item))
+                xml = f' <answer fraction="-33.33333" format="html"> <text><![CDATA[ {item} ]]></text></answer>'
+                print(xml)
             print('<answernumbering>none</answernumbering>\n<shuffleanswers>1</shuffleanswers>\n<single>true</single>\n</question>\n')
 
         self.addHtmlHeader()
@@ -63,8 +63,8 @@ class Quiz: #Запись в html и xml
 
     def questionHeader(self, type, name, question):
         with redirect_stdout(self.f):
-            xml = Template('<question type=" {{type}} ">\n <name>\n  <text> {{name}} </text>\n </name>\n <questiontext format="html">\n  <text><![CDATA[\n {{question}} ]]> \n  </text>\n </questiontext>')
-            print(xml.render(name=name,type=type,question=question))
+            xml = f'<question type=" {type} ">\n <name>\n  <text> {name} </text>\n </name>\n <questiontext format="html">\n  <text><![CDATA[\n {question} ]]> \n  </text>\n </questiontext>'
+            print(xml)
 
     def addHtmlHeader(self):
         if os.path.getsize(self.htmlFilename):

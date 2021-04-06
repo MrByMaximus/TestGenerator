@@ -1,4 +1,4 @@
-<?xml version="1.0" ?> <quiz>
+<?xml version="1.0" ?><quiz>
 <question type=" shortanswer ">
  <name>
   <text> Вопрос №1 </text>
@@ -8,45 +8,49 @@
  Введите ответ программы:<br /><br />1 &nbsp;&nbsp;&nbsp;&nbsp; #include <iostream>
  <br /> 
 
-2 &nbsp;&nbsp;&nbsp;&nbsp; double func(double a, double b) {
+2 &nbsp;&nbsp;&nbsp;&nbsp; int main() {
  <br /> 
 
-3 &nbsp;&nbsp;&nbsp;&nbsp;     double c = 56;
+3 &nbsp;&nbsp;&nbsp;&nbsp;     int a = 85;
  <br /> 
 
-4 &nbsp;&nbsp;&nbsp;&nbsp;     double result = b * a;
+4 &nbsp;&nbsp;&nbsp;&nbsp;     int b = 46;
  <br /> 
 
-5 &nbsp;&nbsp;&nbsp;&nbsp;     return result;
+5 &nbsp;&nbsp;&nbsp;&nbsp;     std::cout << "max: ";
  <br /> 
 
-6 &nbsp;&nbsp;&nbsp;&nbsp; }
+6 &nbsp;&nbsp;&nbsp;&nbsp;     if (a < b)
  <br /> 
 
-7 &nbsp;&nbsp;&nbsp;&nbsp; int main() {
+7 &nbsp;&nbsp;&nbsp;&nbsp; 	    std::cout << b;
  <br /> 
 
-8 &nbsp;&nbsp;&nbsp;&nbsp;     double a = 39;
+8 &nbsp;&nbsp;&nbsp;&nbsp;     else if (a == b)
  <br /> 
 
-9 &nbsp;&nbsp;&nbsp;&nbsp;     double b = 24;
+9 &nbsp;&nbsp;&nbsp;&nbsp;             std::cout << "The numbers are equal";
  <br /> 
 
-10 &nbsp;&nbsp;&nbsp;&nbsp;     std::cout << "result: " << func(a,b);
+10 &nbsp;&nbsp;&nbsp;&nbsp;     else
  <br /> 
 
-11 &nbsp;&nbsp;&nbsp;&nbsp;     return 0;
+11 &nbsp;&nbsp;&nbsp;&nbsp; 	    std::cout << a;
  <br /> 
 
-12 &nbsp;&nbsp;&nbsp;&nbsp; } <br /> 
+12 &nbsp;&nbsp;&nbsp;&nbsp;     return 0;
+ <br /> 
+
+13 &nbsp;&nbsp;&nbsp;&nbsp; } <br /> 
 
  ]]> 
   </text>
  </questiontext>
 <usecase>0</usecase>
-<answer fraction="100" format="moodle_auto_format"><text> 936 </text></answer>
+<answer fraction="100" format="moodle_auto_format"><text> 85 </text></answer>
 </question>
-<question type=" multichoice ">
+
+<question type=" shortanswer ">
  <name>
   <text> Вопрос №2 </text>
  </name>
@@ -55,195 +59,31 @@
  Введите ответ программы:<br /><br />1 &nbsp;&nbsp;&nbsp;&nbsp; #include <iostream>
  <br /> 
 
-2 &nbsp;&nbsp;&nbsp;&nbsp; double func(double a, double b) {
+2 &nbsp;&nbsp;&nbsp;&nbsp; #include <cstring>
  <br /> 
 
-3 &nbsp;&nbsp;&nbsp;&nbsp;     double c = 10;
+3 &nbsp;&nbsp;&nbsp;&nbsp; int main()
  <br /> 
 
-4 &nbsp;&nbsp;&nbsp;&nbsp;     double result = b + a;
+4 &nbsp;&nbsp;&nbsp;&nbsp; {
  <br /> 
 
-5 &nbsp;&nbsp;&nbsp;&nbsp;     return result;
+5 &nbsp;&nbsp;&nbsp;&nbsp;     char str[] = "cube";
  <br /> 
 
-6 &nbsp;&nbsp;&nbsp;&nbsp; }
+6 &nbsp;&nbsp;&nbsp;&nbsp;     std::cout << "The output word: " << str;
  <br /> 
 
-7 &nbsp;&nbsp;&nbsp;&nbsp; int main() {
+7 &nbsp;&nbsp;&nbsp;&nbsp;     return 0;
  <br /> 
 
-8 &nbsp;&nbsp;&nbsp;&nbsp;     double a = 8;
- <br /> 
-
-9 &nbsp;&nbsp;&nbsp;&nbsp;     double b = 42;
- <br /> 
-
-10 &nbsp;&nbsp;&nbsp;&nbsp;     std::cout << "result: " << func(a,b);
- <br /> 
-
-11 &nbsp;&nbsp;&nbsp;&nbsp;     return 0;
- <br /> 
-
-12 &nbsp;&nbsp;&nbsp;&nbsp; } <br /> 
-
- ]]> 
-  </text>
- </questiontext>
- <answer fraction="100" format="html"><text><![CDATA[ 50 ]]></text></answer>
- <answer fraction="-33.33333" format="html"> <text><![CDATA[ 46 ]]></text></answer>
- <answer fraction="-33.33333" format="html"> <text><![CDATA[ 60 ]]></text></answer>
- <answer fraction="-33.33333" format="html"> <text><![CDATA[ 41 ]]></text></answer>
-<answernumbering>none</answernumbering>
-<shuffleanswers>1</shuffleanswers>
-<single>true</single>
-</question>
-
-<question type=" multichoice ">
- <name>
-  <text> Вопрос №3 </text>
- </name>
- <questiontext format="html">
-  <text><![CDATA[
- Введите ответ программы:<br /><br />1 &nbsp;&nbsp;&nbsp;&nbsp; #include <iostream>
- <br /> 
-
-2 &nbsp;&nbsp;&nbsp;&nbsp; int func(int a, int b) {
- <br /> 
-
-3 &nbsp;&nbsp;&nbsp;&nbsp;     int c = 98;
- <br /> 
-
-4 &nbsp;&nbsp;&nbsp;&nbsp;     int result = b * a;
- <br /> 
-
-5 &nbsp;&nbsp;&nbsp;&nbsp;     return result;
- <br /> 
-
-6 &nbsp;&nbsp;&nbsp;&nbsp; }
- <br /> 
-
-7 &nbsp;&nbsp;&nbsp;&nbsp; int main() {
- <br /> 
-
-8 &nbsp;&nbsp;&nbsp;&nbsp;     int a = 59;
- <br /> 
-
-9 &nbsp;&nbsp;&nbsp;&nbsp;     int b = 98;
- <br /> 
-
-10 &nbsp;&nbsp;&nbsp;&nbsp;     std::cout << "result: " << func(a,b);
- <br /> 
-
-11 &nbsp;&nbsp;&nbsp;&nbsp;     return 0;
- <br /> 
-
-12 &nbsp;&nbsp;&nbsp;&nbsp; } <br /> 
-
- ]]> 
-  </text>
- </questiontext>
- <answer fraction="100" format="html"><text><![CDATA[ 5782 ]]></text></answer>
- <answer fraction="-33.33333" format="html"> <text><![CDATA[ 5784 ]]></text></answer>
- <answer fraction="-33.33333" format="html"> <text><![CDATA[ 5772 ]]></text></answer>
- <answer fraction="-33.33333" format="html"> <text><![CDATA[ 5780 ]]></text></answer>
-<answernumbering>none</answernumbering>
-<shuffleanswers>1</shuffleanswers>
-<single>true</single>
-</question>
-
-<question type=" shortanswer ">
- <name>
-  <text> Вопрос №4 </text>
- </name>
- <questiontext format="html">
-  <text><![CDATA[
- Введите ответ программы:<br /><br />1 &nbsp;&nbsp;&nbsp;&nbsp; #include <iostream>
- <br /> 
-
-2 &nbsp;&nbsp;&nbsp;&nbsp; int func(int a, int b) {
- <br /> 
-
-3 &nbsp;&nbsp;&nbsp;&nbsp;     int c = 63;
- <br /> 
-
-4 &nbsp;&nbsp;&nbsp;&nbsp;     int result = a * b + c;
- <br /> 
-
-5 &nbsp;&nbsp;&nbsp;&nbsp;     return result;
- <br /> 
-
-6 &nbsp;&nbsp;&nbsp;&nbsp; }
- <br /> 
-
-7 &nbsp;&nbsp;&nbsp;&nbsp; int main() {
- <br /> 
-
-8 &nbsp;&nbsp;&nbsp;&nbsp;     int a = 51;
- <br /> 
-
-9 &nbsp;&nbsp;&nbsp;&nbsp;     int b = 93;
- <br /> 
-
-10 &nbsp;&nbsp;&nbsp;&nbsp;     std::cout << "result: " << func(a,b);
- <br /> 
-
-11 &nbsp;&nbsp;&nbsp;&nbsp;     return 0;
- <br /> 
-
-12 &nbsp;&nbsp;&nbsp;&nbsp; } <br /> 
+8 &nbsp;&nbsp;&nbsp;&nbsp; } <br /> 
 
  ]]> 
   </text>
  </questiontext>
 <usecase>0</usecase>
-<answer fraction="100" format="moodle_auto_format"><text> 4806 </text></answer>
+<answer fraction="100" format="moodle_auto_format"><text> cube </text></answer>
 </question>
-<question type=" shortanswer ">
- <name>
-  <text> Вопрос №5 </text>
- </name>
- <questiontext format="html">
-  <text><![CDATA[
- Введите ответ программы:<br /><br />1 &nbsp;&nbsp;&nbsp;&nbsp; #include <iostream>
- <br /> 
 
-2 &nbsp;&nbsp;&nbsp;&nbsp; double func(double a, double b) {
- <br /> 
-
-3 &nbsp;&nbsp;&nbsp;&nbsp;     double c = 57;
- <br /> 
-
-4 &nbsp;&nbsp;&nbsp;&nbsp;     double result = b - a;
- <br /> 
-
-5 &nbsp;&nbsp;&nbsp;&nbsp;     return result;
- <br /> 
-
-6 &nbsp;&nbsp;&nbsp;&nbsp; }
- <br /> 
-
-7 &nbsp;&nbsp;&nbsp;&nbsp; int main() {
- <br /> 
-
-8 &nbsp;&nbsp;&nbsp;&nbsp;     double a = 38;
- <br /> 
-
-9 &nbsp;&nbsp;&nbsp;&nbsp;     double b = 37;
- <br /> 
-
-10 &nbsp;&nbsp;&nbsp;&nbsp;     std::cout << "result: " << func(a,b);
- <br /> 
-
-11 &nbsp;&nbsp;&nbsp;&nbsp;     return 0;
- <br /> 
-
-12 &nbsp;&nbsp;&nbsp;&nbsp; } <br /> 
-
- ]]> 
-  </text>
- </questiontext>
-<usecase>0</usecase>
-<answer fraction="100" format="moodle_auto_format"><text> -1 </text></answer>
-</question>
 </quiz>
