@@ -1,0 +1,34 @@
+#include <iostream>
+#include <fstream>
+int main() {
+    {^0^}FILE *in;
+    int count = 0;
+    float buffer;
+    if ((in = fopen("files\\in.txt", "r")) != NULL) {
+        while (!feof(in)) {
+            fscanf(in,"%f",&buffer);
+            if (buffer > 0) count++;
+        }
+        printf("Number of positive numbers: %d", count);
+    }
+    else puts("File empty");
+    {^1^}std::string line;
+    std::ifstream in("files\\in.txt");
+    if (in.is_open()) {
+        while (getline(in, line)) {
+            std::cout << line;
+        }
+    }
+    else std::cout << "File empty";
+    in.close();
+    {^2^}std::string line;
+    std::ifstream in("files\\out.txt");
+    if (in.is_open()) {
+        while (getline(in, line)) {
+            std::cout << line;
+        }
+    }
+    else std::cout << "File empty";
+    in.close();
+    {^-^}return 0;
+}

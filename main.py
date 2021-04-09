@@ -4,12 +4,11 @@ import tkinter as tk
 import sys, os
 import random
 import numpy
-import ctypes
 import fileinput
 from functools import partial
 from quiz import Quiz
 from generation import Generation
-from generation import generator, path, path_xml
+from generation import generator, path, path_xml, sign_for_action, fractional_number
 
 class Main(tk.Tk): #Оконное приложение
     def __init__(self):
@@ -73,9 +72,9 @@ class Main(tk.Tk): #Оконное приложение
     def on_mousewheel(self, event):
         self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
-    def list_index(self):
+    def list_index(self, count):
         index = []
-        list_index = list(range(1, generator['count_multichoice']+1))
+        list_index = list(range(1, count+1))
         random.shuffle(list_index)
         for num in list_index:
             index.append(num)
@@ -85,23 +84,6 @@ class Main(tk.Tk): #Оконное приложение
         if i != self.score_count-1:
             self.correct_answer.append([]) 
 
-    def is_float(self, str):
-        try:
-            float(str)
-            if str.find('.') != -1 and str.count('.') == 1:
-                return True
-            else:
-                raise ValueError
-        except ValueError:
-            return False
-
-    def is_number(self, str):
-        try:
-            float(str)
-            return True
-        except ValueError:
-            return False
-
     def edit_quest(self, filename, start=1):
         with fileinput.FileInput(filename, inplace=True, backup='.bak') as file:
             for n, line in enumerate(file, start=start):
@@ -109,17 +91,17 @@ class Main(tk.Tk): #Оконное приложение
         os.unlink(filename + '.bak')
         return filename
 
-    def create_input(self, i, j):
-        index = self.list_index()
-        for k in range(generator['count_multichoice']):
+    def create_input(self, i, j, count):
+        index = self.list_index(count)
+        for k in range(count):
             self.answer_check[i].append(IntVar())
             self.input_answer_error[i].append(tk.Checkbutton(self.frame[i], text=self.correct_answer[i][k], variable=self.answer_check[i][k], offvalue=0))
             self.input_answer_error[i][k].grid(row=j+1, column=index[k], padx=1, pady=1)
         self.answer_check.append([])
         self.input_answer_error.append([])
         self.input_answer.append(tk.Entry(self.frame[i], width=40, font=40))
-        self.button_answer[i].bind('<Button-1>', partial(self.check_answer_box, i))
-        self.button_answer[i].grid(row=j+1, column=generator['count_multichoice']+1, padx=1, pady=1)
+        self.button_answer[i].bind('<Button-1>', partial(self.check_answer_box, i, count))
+        self.button_answer[i].grid(row=j+1, column=count+1, padx=1, pady=1)
 
     def create_quest(self):
         self.count_number = int(self.count_tests.get())
@@ -149,6 +131,7 @@ class Main(tk.Tk): #Оконное приложение
             self.quest_title.append(quiz[2])
             self.answer.append(quiz[1])
             output = 1
+            count_multichoice = 2
             quest = self.quest_title[i]+"<br /><br />"
             with open(self.edit_quest(path_xml), "r") as f:
                 quest += f.read()
@@ -162,60 +145,63 @@ class Main(tk.Tk): #Оконное приложение
             self.question[i].grid(row=j, column=0, padx=1, pady=1)
             self.question_title[i].grid(row=j+1, column=0, padx=1, pady=1)
 
-            if self.is_number(self.answer[i]) == False:
+            if Generation.is_number(self.answer[i]) == False:
                 choice = 1 # вводный ответ по умолчанию
             else:
                 choice = random.randint(2,3) #множественная выборка или вводный ответ
-            print(choice)
-            if self.is_number(self.answer[i]) and quiz[3] == 0 and choice == 3: #число ответ
-                if self.is_float(self.answer[i]):
+
+            if Generation.is_number(self.answer[i]) and choice == 3: #число ответ
+                if Generation.is_float(self.answer[i]):
                     fractional_number_answer = list(generator['fractional_number_answer'])
-                    self.answer[i] = round(float(self.answer[i]),generator['fractional_number'])
+                    self.answer[i] = round(float(self.answer[i]),fractional_number)
                     number = self.answer[i]
-                    fractional_step_number = 1 / (10 ** generator['fractional_number'])
-                    list_numbers = list(numpy.arange(number-fractional_number_answer[0], number+fractional_number_answer[1], fractional_step_number))
-                    list_numbers = [round(v,generator['fractional_number']) for v in list_numbers]
+                    list_numbers = list(numpy.arange(number-fractional_number_answer[0], number+fractional_number_answer[1], 1 / (10 ** fractional_number)))
+                    list_numbers = [round(v,fractional_number) for v in list_numbers]
                 else:
                     number_answer = list(generator['number_answer'])
                     number = int(self.answer[i])
                     list_numbers = list(range(number-number_answer[0], number+number_answer[1]))
                 random.shuffle(list_numbers)
+                count_multichoice = generator['count_multichoice']
                 k = 0
-                self.correct_answer[i].append(self.answer[i])
+                self.correct_answer[i].append(self.answer[i]) #Правильный ответ
                 for num in list_numbers:
                     if num != number:
                         self.correct_answer[i].append(str(num))
                         k += 1
-                        if k == generator['count_multichoice']-1:
+                        if k == count_multichoice-1:
                             break
                 self.add_correct_answer(i)
-                self.create_input(i,j)
+                self.create_input(i,j,count_multichoice)
                 output = 2
-            elif self.answer[i] in generator['sign_for_action'] and quiz[3] == 0 and choice == 3: #знаковый ответ
-                sign = generator['sign_for_action']
-                random.shuffle(sign)
+            elif self.answer[i] in sign_for_action and choice == 3: #знаковый ответ
+                random.shuffle(sign_for_action)
+                count_multichoice = generator['count_multichoice']
                 k = 0
-                self.correct_answer[i].append(self.answer[i])
-                for num in sign:
+                self.correct_answer[i].append(self.answer[i]) #Правильный ответ
+                for num in sign_for_action:
                     if num != self.answer[i]:
                         self.correct_answer[i].append(str(num))
                         k += 1
-                        if k == generator['count_multichoice']-1:
+                        if k == count_multichoice-1:
                             break
                 self.add_correct_answer(i)
-                self.create_input(i,j)
+                self.create_input(i,j,count_multichoice)
                 output = 2
-            elif len(quiz[4]) != 0 and quiz[3] == 1 and choice != 1: #варианты ответов для типа вопроса с ошибкой
-                random.shuffle(quiz[4]) #list_error_answers
-                self.correct_answer[i].append(self.answer[i]) #херово работает куда попало
-                for num in quiz[4]:
-                    self.correct_answer[i].append(str(num))
+            elif quiz[3] == 5:
+                count_multichoice = 2
+                if self.answer[i] == "yes":
+                    self.correct_answer[i].append("Да")
+                    self.correct_answer[i].append("Нет")
+                else:
+                    self.correct_answer[i].append("Нет")
+                    self.correct_answer[i].append("Да")
                 self.add_correct_answer(i)
-                self.create_input(i,j)
+                self.create_input(i,j,count_multichoice)
                 output = 2
-            elif choice == 1 or (self.is_number(self.answer[i]) and choice == 2) or (self.answer[i] in generator['sign_for_action'] and choice == 2) and quiz[3] == 0: #Вводный ответ
-                if self.is_float(self.answer[i]):
-                    self.answer[i] = round(float(self.answer[i]),generator['fractional_number'])
+            elif choice == 1 or (Generation.is_number(self.answer[i]) and choice == 2) or (self.answer[i] in sign_for_action and choice == 2): #Вводный ответ
+                if Generation.is_float(self.answer[i]):
+                    self.answer[i] = round(float(self.answer[i]),fractional_number)
                 self.input_answer_error.append([]) #заглушки
                 self.answer_check.append([])
                 self.add_correct_answer(i)
@@ -226,28 +212,28 @@ class Main(tk.Tk): #Оконное приложение
                 self.button_answer[i].grid(row=j+1, column=2, padx=1, pady=1)
                 output = 1
             print("Ответ: "+str(self.answer[i]))
+            q.delete_file()
             j += 2
-
+            
             if output == 1:
                 self.Quiz.addShortAnswerQuestion("Вопрос №"+str(i+1), quest, str(self.answer[i]))
             elif output == 2:
-                self.Quiz.addMultipleChoiceQuestion("Вопрос №"+str(i+1), quest, self.correct_answer[i])
-        q.delete_file()
+                self.Quiz.addMultipleChoiceQuestion("Вопрос №"+str(i+1), quest, self.correct_answer[i], count_multichoice)
         self.Quiz.close()
 
-    def check_answer_box(self, i, event):
+    def check_answer_box(self, i, count_multichoice, event):
         self.button_answer[i].destroy()
         self.count_number -= 1
         k = 0
         if self.answer_check[i][0].get() == True: #может быть несколько правильных ответов - сделать
             self.score += 1
-            for k in range(generator['count_multichoice']):
+            for k in range(count_multichoice):
                 self.input_answer_error[i][k].config(state="disabled",bg="lightgreen")
             self.frame[i].config(bg="lightgreen")
             self.question[i].config(bg="lightgreen")
             self.question_title[i].config(bg="lightgreen")
         else:
-            for k in range(generator['count_multichoice']):
+            for k in range(count_multichoice):
                 self.input_answer_error[i][k].config(state="disabled",bg="tomato")
             self.frame[i].config(bg="tomato")
             self.question[i].config(bg="tomato")

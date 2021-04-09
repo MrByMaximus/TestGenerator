@@ -1,8 +1,6 @@
 import webbrowser, sys, os
-from sympy.core.basic import Basic
-from sympy import *
 from contextlib import redirect_stdout
-#from jinja2 import Template
+from jinja2 import Template
 from generation import generator
 
 class Quiz: #Запись в html и xml
@@ -18,9 +16,6 @@ class Quiz: #Запись в html и xml
         file.close()
 
     def addShortAnswerQuestion(self, name, question, answer):
-        if isinstance(question, Basic):
-            question = f"\({latex(question)}\)"
-
         with redirect_stdout(self.f):
             self.questionHeader("shortanswer", name, question)
             xml = f'<usecase>0</usecase>\n<answer fraction="100" format="moodle_auto_format"><text> {answer} </text></answer>\n</question>\n'
@@ -30,19 +25,16 @@ class Quiz: #Запись в html и xml
         self.addHtmlQuestionBlock(name, question, 'shortanswer')
         self.addHtmlAnswerBlockShortAnswer(answer)
 
-    def addMultipleChoiceQuestion(self, name, question, choiceList):
-        if isinstance(question, Basic):
-            question = f"\({latex(question)}\)"
-        if len(choiceList) > generator['count_multichoice']:
+    def addMultipleChoiceQuestion(self, name, question, choiceList, count_multichoice):
+        if len(choiceList) > count_multichoice:
             tmp = choiceList[1:]
             shuffle(tmp)
-            choiceList = [choiceList[0]] + tmp[:generator['count_multichoice']-1]
-        choiceList = [ f"\({latex(item)}\)" if isinstance(item, Basic) else item for item in choiceList]
+            choiceList = [choiceList[0]] + tmp[:count_multichoice-1]
 
-        if len(choiceList) != generator['count_multichoice']:
-            print("Ошибка: добавление вопроса с множественным выбором требует ровно" + generator['count_multichoice'] + " варианта ответов. Дано:\n", choiceList)
+        if len(choiceList) != count_multichoice:
+            print("Ошибка: добавление вопроса с множественным выбором требует ровно" + count_multichoice + " варианта ответов. Дано:\n", choiceList)
             sys.exit(-1)
-        if len(set(choiceList)) != generator['count_multichoice']:
+        if len(set(choiceList)) != count_multichoice:
             print("Предупреждение: добавление вопроса с несколькими вариантами выбора с неуникальными опциями было проигнорировано:\n ", choiceList)
             return
 
@@ -93,9 +85,9 @@ class Quiz: #Запись в html и xml
         f.close()
 
     def addHtmlQuestionBlock(self, name, question, questionType):
-        html = f'<body><h2> {name} </h2><div class="que {questionType} deferredfeedback "><div class="content"><div class="formulation clearfix"><div class="qtext">\n {question} </div>'
+        html = Template('<body><h2> {{name}} </h2><div class="que {{questionType}} deferredfeedback "><div class="content"><div class="formulation clearfix"><div class="qtext">\n {{question}} </div>')
         f = self.edit_open()
-        f.write(html)
+        f.write(html.render(name=name,question=question,questionType=questionType))
         f.close()
 
     def addHtmlAnswerBlockMultichoice(self, choiceList):
@@ -108,9 +100,9 @@ class Quiz: #Запись в html и xml
         f.close()
 
     def addHtmlAnswerBlockShortAnswer(self, answer):
-        html = f'<br /><div class="ablock"><span class="answer"><input type="text" size="80" class="form-control d-inline" /><p>Правильный ответ: {answer} </span></div></div></div></div></body></html>'
+        html = Template('<br /><div class="ablock"><span class="answer"><input type="text" size="80" class="form-control d-inline" /><p>Правильный ответ: {{answer}} </span></div></div></div></div></body></html>')
         f = self.edit_open()
-        f.write(html)
+        f.write(html.render(answer=answer))
         f.close()
 
     def preview(self):
