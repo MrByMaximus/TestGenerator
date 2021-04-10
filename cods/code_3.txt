@@ -13,7 +13,8 @@ void func(int a, int b, int c) {
 int main() {
     int a = {number};
     int b = {number};
-    int c = a {action} b;
-    func(a,b,c);
+    {^0^}int c = a {action} b;
+    {^1^}int c = b {action} a;
+    {^-^}func(a,b,c);
     return 0;
 }

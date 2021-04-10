@@ -9,7 +9,6 @@ import numpy
 path = os.getcwd()
 path_compile = path+'/quest.cpp'
 path_output = path+'/quest.txt'
-path_xml = path+'/quest_xml.txt'
 generator = open(path+'/generator.conf','r', encoding="utf-8")
 generator = ast.literal_eval(generator.read())
 sign_for_action = generator['sign_for_action']
@@ -26,8 +25,8 @@ class Generation(): #Генерация вопроса
         path_code = path+'/cods'
         code = random.choice(list(filter(lambda x: x.endswith('.txt'), os.listdir(path_code))))
         type_quiz = random.randint(1,5) #логические, синтаксические, при результате выдать ответ, стандарт вопрос
-        type_quiz = 5
-        #code = 'code_2.txt'
+        type_quiz = 4
+        code = 'code_3.txt'
 
         if type_quiz == 3 and not code.replace(".txt","") in generator['type_quiz_exception']:
             type_quiz = 4
@@ -56,7 +55,8 @@ class Generation(): #Генерация вопроса
             os_out = self.write_code(quest_out[0])
 
         file.close()
-        with open(self.number_lines(path_output), "r") as f:
+        lines_out = self.number_lines(path_output)
+        with open(lines_out[0], "r") as f:
             text = f.read()
 
         #check = subprocess.call(os_out, shell=True, stdout=DEVNULL, stderr=subprocess.STDOUT)
@@ -88,7 +88,7 @@ class Generation(): #Генерация вопроса
                 ans_out = round(float(ans_out),fractional_number)
             quiz = "При компиляции программы результат будет: "+str(ans_out)
         
-        return [text,str(ans),quiz,type_quiz]
+        return [text,str(ans),quiz,type_quiz,lines_out[1]]
 
     def is_float(str):
         try:
@@ -107,7 +107,7 @@ class Generation(): #Генерация вопроса
         except ValueError:
             return False
 
-    def count_elements(self, quest): #продумать без нумерации
+    def count_elements(self, quest):
         text = quest.split()
         count_number = 0
         count_action = 0
@@ -131,7 +131,7 @@ class Generation(): #Генерация вопроса
                     count += 1
         return count
 
-    def noise(self, quest):
+    def noise(self, quest): #несколько шумов делать таких
         count_noise = 0
         text = quest.split()
         noise = []
@@ -416,30 +416,28 @@ class Generation(): #Генерация вопроса
                 quest = quest.replace("int","float")
                 quest = quest.replace("float main","int main")        
         if count[2] != 0: #словарь слов
-            dictionary = []
+            dictionary_list = []
             for i in range(count[2]):
                 index = quest.find("{dictionary}")
                 quest = quest[:index+11] + str(i) + quest[index+11:]
-                dictionary.append(random.choice(dictionary))
+                dictionary_list.append(random.choice(dictionary))
                 quest = quest.replace("{dictionary"+str(i)+"}", dictionary[i])
             if quest.find("{letter}") != -1:
-                letter = list(dictionary[random.randint(0, count[2]-1)])
+                letter = list(dictionary_list[random.randint(0, count[2]-1)])
                 quest = quest.replace("{letter}",random.choice(letter))
         if quest.find("<fstream>") != -1:
             path_files = path+'/files'
             file = open(path_files+"/in.txt",'w', encoding="utf-8")
-            if quest.find("count"):
+            if quest.find("count") != -1:
                 generated_number = list(generator['generated_number'])
                 numbers = ''
                 for i in range(generator['number_of_generated_numbers']):
                     numbers += str(random.randint(generated_number[0], generated_number[1]))
                     if i != generator['number_of_generated_numbers']-1:
                         numbers += ' '
-                print(numbers)
                 file.write(numbers)
-            elif quest.find("line"):
+            elif quest.find("line") != -1:
                 line = random.choice(dictionary)
-                print(line)
                 file.write(line)
             file.close()
             
@@ -480,26 +478,19 @@ class Generation(): #Генерация вопроса
         return answer_out
 
     def write_code_output(self, quest):
-        file1 = open(path_output,'w', encoding="utf-8")
-        file1.write(quest)
-        file1.close()
-        file2 = open(path_xml,'w', encoding="utf-8")
-        file2.write(quest)
-        file2.close()
+        file = open(path_output,'w', encoding="utf-8")
+        file.write(quest)
+        file.close()
 
     def write_code(self, quest):
         file = open(path_compile,'w', encoding="utf-8")
         file.write(quest)
         file.close()
-        if sys.platform == "linux" or sys.platform == "linux2":
-            return "g++ " + path + "/quest.cpp -o " + path + "/quest"
-        else:
-            return "g++ " + path + "\quest.cpp -o " + path + "\quest"
+        return "g++ " + path + "\quest.cpp -o " + path + "\quest"
 
     def delete_file(self):
         os.remove(os.path.join(path_compile))
         os.remove(os.path.join(path_output))
-        os.remove(os.path.join(path_xml))
         if os.path.exists(path+"/quest.exe"):
             os.remove(os.path.join("quest.exe")) #Надо еще для linux
         if os.path.exists(path+"/quest"):
@@ -520,7 +511,7 @@ class Generation(): #Генерация вопроса
     def answer_false(self, os_out):
         process = subprocess.Popen(os_out, shell=True, stdout=subprocess.PIPE, encoding=cmd_codepage, stderr=subprocess.STDOUT)
         tmp = process.stdout.read()
-        #print(tmp)
+        print(tmp)
         tmp = tmp.replace(path+"\quest.cpp:","")
         tmp = tmp.replace(" In function 'int main()':\n","")
         index = tmp.find(" In function 'int func")
@@ -532,12 +523,8 @@ class Generation(): #Генерация вопроса
         index = tmp.find(" In function 'void func")
         if index != -1:
             tmp = self.delete_error_code(tmp,index)
-        ans = ''
-        index = tmp.find(":")
-        for i in range(index):
-            ans += ''.join(tmp[i])
 
-        return ans
+        return tmp[:tmp.find(":")-1]
 
     def delete_error_code(self, tmp, index):
         index2 = tmp.find(":\n",index)
@@ -546,8 +533,11 @@ class Generation(): #Генерация вопроса
         return tmp
 
     def number_lines(self, filename, start=1):
+        lines = []
         with fileinput.FileInput(filename, inplace=True, backup='.bak') as file:
             for n, line in enumerate(file, start=start):
+                lines.append(line)
                 print(n, '    ', line, end='')
         os.unlink(filename + '.bak')
-        return filename
+
+        return [filename, lines]

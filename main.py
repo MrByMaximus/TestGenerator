@@ -8,7 +8,7 @@ import fileinput
 from functools import partial
 from quiz import Quiz
 from generation import Generation
-from generation import generator, path, path_xml, sign_for_action, fractional_number
+from generation import generator, path, path_output, sign_for_action, fractional_number
 
 class Main(tk.Tk): #Оконное приложение
     def __init__(self):
@@ -84,13 +84,6 @@ class Main(tk.Tk): #Оконное приложение
         if i != self.score_count-1:
             self.correct_answer.append([]) 
 
-    def edit_quest(self, filename, start=1):
-        with fileinput.FileInput(filename, inplace=True, backup='.bak') as file:
-            for n, line in enumerate(file, start=start):
-                print(n, "&nbsp;&nbsp;&nbsp;&nbsp;", line, "<br />")             
-        os.unlink(filename + '.bak')
-        return filename
-
     def create_input(self, i, j, count):
         index = self.list_index(count)
         for k in range(count):
@@ -132,9 +125,6 @@ class Main(tk.Tk): #Оконное приложение
             self.answer.append(quiz[1])
             output = 1
             count_multichoice = 2
-            quest = self.quest_title[i]+"<br /><br />"
-            with open(self.edit_quest(path_xml), "r") as f:
-                quest += f.read()
 
             self.frame.append(tk.Frame(self.frame2, borderwidth=2, relief="groove"))
             self.frame[i].pack(fill=BOTH)
@@ -198,14 +188,16 @@ class Main(tk.Tk): #Оконное приложение
                     self.correct_answer[i].append("Да")
                 self.add_correct_answer(i)
                 self.create_input(i,j,count_multichoice)
-                output = 2
+                output = 3
+            elif quiz[3] == 6:
+                
+                output = 4
             elif choice == 1 or (Generation.is_number(self.answer[i]) and choice == 2) or (self.answer[i] in sign_for_action and choice == 2): #Вводный ответ
                 if Generation.is_float(self.answer[i]):
                     self.answer[i] = round(float(self.answer[i]),fractional_number)
                 self.input_answer_error.append([]) #заглушки
                 self.answer_check.append([])
                 self.add_correct_answer(i)
-                #print(self.input_answer)
                 self.input_answer.append(tk.Entry(self.frame[i], width=30, font=40))
                 self.input_answer[i].grid(row=j+1, column=1, padx=1, pady=1)
                 self.button_answer[i].bind('<Button-1>', partial(self.check_answer, i))
@@ -216,15 +208,19 @@ class Main(tk.Tk): #Оконное приложение
             j += 2
             
             if output == 1:
-                self.Quiz.addShortAnswerQuestion("Вопрос №"+str(i+1), quest, str(self.answer[i]))
+                self.Quiz.addShortAnswerQuestion("Вопрос №"+str(i+1), self.quest_title[i], quiz[4], str(self.answer[i]))
             elif output == 2:
-                self.Quiz.addMultipleChoiceQuestion("Вопрос №"+str(i+1), quest, self.correct_answer[i], count_multichoice)
+                self.Quiz.addMultipleChoiceQuestion("Вопрос №"+str(i+1), self.quest_title[i], quiz[4], self.correct_answer[i], count_multichoice)
+            elif output == 3:
+                self.Quiz.addTrueFalseQuestion("Вопрос №"+str(i+1), self.quest_title[i], quiz[4], self.correct_answer[i])
+            elif output == 4:
+                self.Quiz.addMultipleChoiceQuestion("Вопрос №"+str(i+1), self.quest_title[i], quiz[4], self.correct_answer[i], self.correct_matching_answer[i], count_multichoice)
         self.Quiz.close()
+        #self.Quiz.check_empty_file()
 
     def check_answer_box(self, i, count_multichoice, event):
         self.button_answer[i].destroy()
         self.count_number -= 1
-        k = 0
         if self.answer_check[i][0].get() == True: #может быть несколько правильных ответов - сделать
             self.score += 1
             for k in range(count_multichoice):
