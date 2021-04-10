@@ -162,9 +162,3 @@ class Quiz: #Запись в html и xml
         with redirect_stdout(self.f):
             print('</quiz>')
         self.f.close()
-
-    def check_empty_file(self):
-        if os.stat(self.htmlFilename).st_size == 0:
-            os.remove(os.path.join(self.htmlFilename))
-        if os.stat(self.filename).st_size == 0:
-            os.remove(os.path.join(self.filename))

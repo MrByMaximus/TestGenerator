@@ -25,8 +25,8 @@ class Generation(): #Генерация вопроса
         path_code = path+'/cods'
         code = random.choice(list(filter(lambda x: x.endswith('.txt'), os.listdir(path_code))))
         type_quiz = random.randint(1,5) #логические, синтаксические, при результате выдать ответ, стандарт вопрос
-        type_quiz = 4
-        code = 'code_3.txt'
+        #type_quiz = 4
+        #code = 'code_2.txt'
 
         if type_quiz == 3 and not code.replace(".txt","") in generator['type_quiz_exception']:
             type_quiz = 4
@@ -131,26 +131,36 @@ class Generation(): #Генерация вопроса
                     count += 1
         return count
 
-    def noise(self, quest): #несколько шумов делать таких
-        count_noise = 0
+    def noise(self, quest): # вставлять синтаксис перед строчкой кода
         text = quest.split()
         noise = []
+        index_first = 0
+        index_last = 0
+        count_all_noise = self.counting(quest,"{-}")
 
-        for word in text:
-            if word.find("{^"+str(count_noise)+"^}") != -1:
-                noise.append("{^"+str(count_noise)+"^}")
-                count_noise+=1
-
-        if count_noise != 0:
-            noise.append("{^-^}")
-            num = random.randint(0,count_noise-1)
-            noise_num1 = quest.find(noise[num])
-            first = quest.find(noise[0])
-            end = quest.find(noise[count_noise])
-            noise_num2 = quest.find(noise[num+1])
-            quest_out = quest[noise_num1+5:noise_num2]
-            quest = quest[:first] + quest[end:]
-            quest = quest.replace("{^-^}", quest_out)
+        if count_all_noise != 0:
+            for i in range(count_all_noise):
+                index_first = quest.find("{-}", index_first)
+                index_last = quest.find("{*}", index_first)
+                if index_first != -1:
+                    noise.append([])
+                    count_noise = 1
+                    index = index_first
+                    index_last += len("{*}")
+                    noise[i].append("{0}")
+                    while index < index_last:
+                        index = quest.find("{"+str(count_noise)+"}",index,index_last)
+                        if index != -1:
+                            noise[i].append("{"+str(count_noise)+"}")
+                            count_noise += 1
+                        else:
+                            break
+                    noise[i].append("{*}")
+                    num = random.randint(0,count_noise-1)
+                    quest = quest[:index_first] + "{0}" + quest[index_first+len("{-}"):]
+                    noise_num_first = quest.find(noise[i][num],index_first,index_last)+len(noise[i][num])
+                    noise_num_last = quest.find(noise[i][num+1],index_first,index_last)
+                    quest = quest[:index_first] + quest[noise_num_first:noise_num_last] + quest[index_last:]
 
         return quest
 
@@ -173,8 +183,8 @@ class Generation(): #Генерация вопроса
             for i in range(count[0]):
                 index = quest.find("{number}")
                 index2 = quest_out.find("{number}")
-                quest = quest[:index+7] + str(i) + quest[index+7:]
-                quest_out = quest_out[:index2+7] + str(i) + quest_out[index2+7:]
+                quest = quest[:index+len("{number}")-1] + str(i) + quest[index+len("{number}")-1:]
+                quest_out = quest_out[:index2+len("{number}")-1] + str(i) + quest_out[index2+len("{number}")-1:]
                 number.append(str(random.randint(generated_number[0],generated_number[1])))
                 quest = quest.replace("{number"+str(i)+"}", number[j])
                 if i != num:
@@ -188,8 +198,8 @@ class Generation(): #Генерация вопроса
                 for i in range(count[1]):
                     index = quest.find("{action}")
                     index2 = quest_out.find("{action}")
-                    quest = quest[:index+7] + str(i) + quest[index+7:]
-                    quest_out = quest_out[:index2+7] + str(i) + quest_out[index2+7:]
+                    quest = quest[:index+len("{action}")-1] + str(i) + quest[index+len("{action}")-1:]
+                    quest_out = quest_out[:index2+len("{action}")-1] + str(i) + quest_out[index2+len("{action}")-1:]
                     action.append(str(random.choice(sign_for_action)))
                     quest = quest.replace("{action"+str(i)+"}", action[i])
                     quest_out = quest_out.replace("{action"+str(i)+"}", action[i])
@@ -203,8 +213,8 @@ class Generation(): #Генерация вопроса
             for i in range(count[1]):
                 index = quest.find("{action}")
                 index2 = quest_out.find("{action}")
-                quest = quest[:index+7] + str(i) + quest[index+7:]
-                quest_out = quest_out[:index2+7] + str(i) + quest_out[index2+7:]
+                quest = quest[:index+len("{action}")-1] + str(i) + quest[index+len("{action}")-1:]
+                quest_out = quest_out[:index2+len("{action}")-1] + str(i) + quest_out[index2+len("{action}")-1:]
                 action.append(str(random.choice(sign_for_action)))
                 quest = quest.replace("{action"+str(i)+"}", action[j])
                 if action[i] == '/':
@@ -220,8 +230,8 @@ class Generation(): #Генерация вопроса
                 for i in range(count[0]):
                     index = quest.find("{number}")
                     index2 = quest_out.find("{number}")
-                    quest = quest[:index+7] + str(i) + quest[index+7:]
-                    quest_out = quest_out[:index2+7] + str(i) + quest_out[index2+7:]
+                    quest = quest[:index+len("{number}")-1] + str(i) + quest[index+len("{number}")-1:]
+                    quest_out = quest_out[:index2+len("{number}")-1] + str(i) + quest_out[index2+len("{number}")-1:]
                     number.append(str(random.randint(generated_number[0],generated_number[1])))
                     quest = quest.replace("{number"+str(i)+"}", number[i])
                     quest_out = quest_out.replace("{number"+str(i)+"}", number[i])
@@ -230,7 +240,7 @@ class Generation(): #Генерация вопроса
             dictionary = []
             for i in range(count[2]):
                 index = quest.find("{dictionary}")
-                quest = quest[:index+11] + str(i) + quest[index+11:]
+                quest = quest[:index+len("{dictionary}")-1] + str(i) + quest[index+len("{dictionary}")-1:]
                 dictionary.append(random.choice(dictionary))
                 quest = quest.replace("{dictionary"+str(i)+"}", dictionary[i])
             quest_out = quest
@@ -264,7 +274,7 @@ class Generation(): #Генерация вопроса
     def type_code_error(self, quest, error_choice):
         text = quest.split()
         choice = random.randint(1,2)
-        choice = 2
+        #choice = 2
         count_error = self.counting(quest, error_choice)
         index = 0
         error_syntax = list(generator['error_syntax'])
@@ -311,8 +321,8 @@ class Generation(): #Генерация вопроса
 
     def type_code_logic(self, quest):
         choice = random.randint(1,2)
-        quest_out = quest
         #choice = 1
+        quest_out = ''
         out = ''
         out_error = []
         not_error = 0
@@ -330,16 +340,38 @@ class Generation(): #Генерация вопроса
             quest_out = quest
 
         return [quest,quest_out,out,not_error]
- #сопоставление пунктов списка
 
-    def type_code_syntax(self, quest): #; не работает - не выводит ошибку вообще
-        choice = random.randint(1,5)
-        choice = 6
-        quest_out = quest
+    def error_line(self, quest, error_delete, error_replace):
+        count_error = self.counting(quest, error_delete)
+        num_error = random.randint(1,count_error)
+        quest_out = ''
+        out = ''
+        k = 1
+        check = 0
+        with open(path_compile, 'r') as fp:
+            for n, line in enumerate(fp, 1):
+                if line.find(error_delete) != -1:
+                    if k == num_error:
+                        check = 1
+                    k += 1
+                if check == 0:
+                    quest_out += line
+                else:
+                    check = 0
+                    quest_out += line.replace(error_delete,error_replace)
+                    out = n
+        
+        return [quest_out, out]
+
+    def type_code_syntax(self, quest):
+        choice = random.randint(1,7)
+        #choice = 3
+        quest_out = ''
         out = ''
         out_error = []
         not_error = 0
         error_choice = random.choice(generator['error_syntax'])
+        #error_choice = ";"
 
         if (quest.find("int func") != -1 or quest.find("float func") != -1) and choice == 1: #не работает
             count_func = self.counting(quest, "func")
@@ -365,11 +397,9 @@ class Generation(): #Генерация вопроса
             quest = quest[:index-1] + "\n    return result;\n" + quest[index:]
             quest_out = quest
         elif quest.find("==") != -1 and choice == 3:
-            with open(path_compile, 'r') as fp:
-                for n, line in enumerate(fp, 1):
-                    if line.find("==") != -1:
-                        quest_out = quest.replace("==","=")
-                        out = n - 1
+            error_request = self.error_line(quest,"==","=")
+            quest_out = error_request[0]
+            out = error_request[1]
         elif quest.find("result") != -1 and choice == 4: #вставить const
             if quest.find("int result") != -1:
                 quest = quest.replace("int result", "const int result")
@@ -385,6 +415,10 @@ class Generation(): #Генерация вопроса
         elif quest.find(error_choice) != -1 and choice == 6:
             quest = self.type_code_error(quest, error_choice)
             quest_out = quest
+        elif quest.find(";") != -1 and choice == 7:
+            error_request = self.error_line(quest,";","")
+            quest_out = error_request[0]
+            out = error_request[1]
         else:
             not_error = 1
             quest_out = quest
@@ -401,7 +435,7 @@ class Generation(): #Генерация вопроса
             generated_number = list(generator['generated_number'])
             for i in range(count[0]):
                 index = quest.find("{number}")
-                quest = quest[:index+7] + str(i) + quest[index+7:]
+                quest = quest[:index+len("{number}")-1] + str(i) + quest[index+len("{number}")-1:]
                 quest = quest.replace("{number"+str(i)+"}", str(random.randint(generated_number[0],generated_number[1])))  
         if count[1] != 0: #генерация вычислений
             action = []
@@ -410,7 +444,7 @@ class Generation(): #Генерация вопроса
                 action.append(str(random.choice(sign_for_action)))
                 if action[i] == '/':
                     check_division = 1
-                quest = quest[:index+7] + str(i) + quest[index+7:]
+                quest = quest[:index+len("{action}")-1] + str(i) + quest[index+len("{action}")-1:]
                 quest = quest.replace("{action"+str(i)+"}", action[i])
             if check_division == 1:
                 quest = quest.replace("int","float")
@@ -419,7 +453,7 @@ class Generation(): #Генерация вопроса
             dictionary_list = []
             for i in range(count[2]):
                 index = quest.find("{dictionary}")
-                quest = quest[:index+11] + str(i) + quest[index+11:]
+                quest = quest[:index+len("{dictionary}")-1] + str(i) + quest[index+len("{dictionary}")-1:]
                 dictionary_list.append(random.choice(dictionary))
                 quest = quest.replace("{dictionary"+str(i)+"}", dictionary[i])
             if quest.find("{letter}") != -1:
@@ -486,21 +520,18 @@ class Generation(): #Генерация вопроса
         file = open(path_compile,'w', encoding="utf-8")
         file.write(quest)
         file.close()
-        return "g++ " + path + "\quest.cpp -o " + path + "\quest"
+        return "g++ " + path + "/quest.cpp -o " + path + "/quest"
 
     def delete_file(self):
         os.remove(os.path.join(path_compile))
         os.remove(os.path.join(path_output))
         if os.path.exists(path+"/quest.exe"):
-            os.remove(os.path.join("quest.exe")) #Надо еще для linux
+            os.remove(os.path.join("quest.exe"))
         if os.path.exists(path+"/quest"):
-            os.remove(os.path.join("quest")) #Надо еще для linux
+            os.remove(os.path.join("quest"))
 
     def answer_true(self, os_out):
-        if sys.platform == "linux" or sys.platform == "linux2":
-            os_out += " && " + path + "/quest" #Проверить в linux
-        else:
-            os_out += " && " + path + "\quest"
+        os_out += " && " + path + "/quest"
         ans = subprocess.check_output(os_out, shell=True, encoding=cmd_codepage, stderr=subprocess.STDOUT)
         index = ans.find(":")
         if index != -1:

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+        <title>Тест по программированию на C++</title>
+        <style>
+        body
+        {
+        margin-top: 20px;
+        margin-right: 20px;
+        margin-bottom: 20px;
+        margin-left: 20px;
+        }
+        h2
+        {
+        margin-left: 120px;
+        }
+        </style>
+        </head>
+        <body><h2>Вопрос №1</h2><div class="que multichoice deferredfeedback "><div class="content"><div class="formulation clearfix"><div class="qtext">
+Введите ответ программы:<br /><br /><pre>1    #include &lt;iostream&gt;
+</pre><pre>2    #include &lt;fstream&gt;
+</pre><pre>3    int main() {
+</pre><pre>4        FILE *in;
+</pre><pre>5        int count = 0;
+</pre><pre>6        float buffer;
+</pre><pre>7        if ((in = fopen(&#34;files\\in.txt&#34;, &#34;r&#34;)) != NULL) {
+</pre><pre>8            while (!feof(in)) {
+</pre><pre>9                fscanf(in,&#34;%f&#34;,&amp;buffer);
+</pre><pre>10                if (buffer &gt; 0) count++;
+</pre><pre>11            }
+</pre><pre>12            printf(&#34;Number of positive numbers: %d&#34;, count);
+</pre><pre>13        }
+</pre><pre>14        else puts(&#34;File empty&#34;);
+</pre><pre>15        return 0;
+</pre><pre>16    }</pre></div>
+<br /><div class="ablock"><div class="answer"><div class="r0"><input type="radio" {"checked" if item==choiceList[0] else ""}/><label>3</label></div><div class="r0"><input type="radio" {"checked" if item==choiceList[0] else ""}/><label>5</label></div><div class="r0"><input type="radio" {"checked" if item==choiceList[0] else ""}/><label>-1</label></div><div class="r0"><input type="radio" {"checked" if item==choiceList[0] else ""}/><label>8</label></div></div></div></div></div></div></body></html><body><h2>Вопрос №2</h2><div class="que shortanswer deferredfeedback "><div class="content"><div class="formulation clearfix"><div class="qtext">
+Введите ответ программы:<br /><br /><pre>1    #include &lt;iostream&gt;
+</pre><pre>2    float func(float a, float b) {
+</pre><pre>3        float c = 40;
+</pre><pre>4        float result = b / a * c;
+</pre><pre>5        return result;
+</pre><pre>6    }
+</pre><pre>7    int main() {
+</pre><pre>8        float a = 23;
+</pre><pre>9        float b = 7;
+</pre><pre>10        std::cout &lt;&lt; &#34;result: &#34; &lt;&lt; func(a,b);
+</pre><pre>11        return 0;
+</pre><pre>12    }</pre></div>
+<br /><div class="ablock"><span class="answer"><input type="text" size="80" class="form-control d-inline" /><p>Правильный ответ: 12.17 </span></div></div></div></div></body></html><body><h2>Вопрос №3</h2><div class="que shortanswer deferredfeedback "><div class="content"><div class="formulation clearfix"><div class="qtext">
+Введите ответ программы:<br /><br /><pre>1    #include &lt;iostream&gt;
+</pre><pre>2    #include &lt;cstring&gt;
+</pre><pre>3    int main() {
+</pre><pre>4        std::string str = &#34;parallelepiped&#34;;
+</pre><pre>5        char letter = &#39;r&#39;;
+</pre><pre>6        for (int i = 0; i &lt; str.length(); i++) {
+</pre><pre>7            if (str[i] == letter)
+</pre><pre>8                str.erase(i, 1);
+</pre><pre>9        }
+</pre><pre>10        std::cout &lt;&lt; &#34;The output word: &#34; &lt;&lt; str;
+</pre><pre>11        return 0;
+</pre><pre>12    }</pre></div>
+<br /><div class="ablock"><span class="answer"><input type="text" size="80" class="form-control d-inline" /><p>Правильный ответ: paallelepiped </span></div></div></div></div></body></html>

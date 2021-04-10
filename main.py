@@ -41,7 +41,7 @@ class Main(tk.Tk): #Оконное приложение
         self.quest = []
         self.quest_title = []
         self.answer = []
-        self.correct_answer = [[]]
+        self.correct_answer = []
         self.input_answer = []
         self.input_answer_error = [[]]
         self.answer_check = [[]]
@@ -79,10 +79,6 @@ class Main(tk.Tk): #Оконное приложение
         for num in list_index:
             index.append(num)
         return index
-
-    def add_correct_answer(self, i):
-        if i != self.score_count-1:
-            self.correct_answer.append([]) 
 
     def create_input(self, i, j, count):
         index = self.list_index(count)
@@ -153,6 +149,7 @@ class Main(tk.Tk): #Оконное приложение
                     list_numbers = list(range(number-number_answer[0], number+number_answer[1]))
                 random.shuffle(list_numbers)
                 count_multichoice = generator['count_multichoice']
+                self.correct_answer.append([])
                 k = 0
                 self.correct_answer[i].append(self.answer[i]) #Правильный ответ
                 for num in list_numbers:
@@ -161,12 +158,12 @@ class Main(tk.Tk): #Оконное приложение
                         k += 1
                         if k == count_multichoice-1:
                             break
-                self.add_correct_answer(i)
                 self.create_input(i,j,count_multichoice)
                 output = 2
             elif self.answer[i] in sign_for_action and choice == 3: #знаковый ответ
                 random.shuffle(sign_for_action)
                 count_multichoice = generator['count_multichoice']
+                self.correct_answer.append([])
                 k = 0
                 self.correct_answer[i].append(self.answer[i]) #Правильный ответ
                 for num in sign_for_action:
@@ -175,18 +172,17 @@ class Main(tk.Tk): #Оконное приложение
                         k += 1
                         if k == count_multichoice-1:
                             break
-                self.add_correct_answer(i)
                 self.create_input(i,j,count_multichoice)
                 output = 2
             elif quiz[3] == 5:
                 count_multichoice = 2
+                self.correct_answer.append([])
                 if self.answer[i] == "yes":
                     self.correct_answer[i].append("Да")
                     self.correct_answer[i].append("Нет")
                 else:
                     self.correct_answer[i].append("Нет")
                     self.correct_answer[i].append("Да")
-                self.add_correct_answer(i)
                 self.create_input(i,j,count_multichoice)
                 output = 3
             elif quiz[3] == 6:
@@ -197,7 +193,7 @@ class Main(tk.Tk): #Оконное приложение
                     self.answer[i] = round(float(self.answer[i]),fractional_number)
                 self.input_answer_error.append([]) #заглушки
                 self.answer_check.append([])
-                self.add_correct_answer(i)
+                self.correct_answer.append([])
                 self.input_answer.append(tk.Entry(self.frame[i], width=30, font=40))
                 self.input_answer[i].grid(row=j+1, column=1, padx=1, pady=1)
                 self.button_answer[i].bind('<Button-1>', partial(self.check_answer, i))
@@ -216,7 +212,6 @@ class Main(tk.Tk): #Оконное приложение
             elif output == 4:
                 self.Quiz.addMultipleChoiceQuestion("Вопрос №"+str(i+1), self.quest_title[i], quiz[4], self.correct_answer[i], self.correct_matching_answer[i], count_multichoice)
         self.Quiz.close()
-        #self.Quiz.check_empty_file()
 
     def check_answer_box(self, i, count_multichoice, event):
         self.button_answer[i].destroy()

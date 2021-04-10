@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstring>
 int main() {
-    {^0^}char str[] = "{dictionary}";
+    {-}char str[] = "{dictionary}";
     int count = 0;
     int i = 0;
     while (str[i] != '\0') {
@@ -9,7 +9,7 @@ int main() {
         i++;
     }
     std::cout << "Number of characters in the text: " << count;
-    {^1^}char str[] = "{dictionary}";
+    {1}char str[] = "{dictionary}";
     char letter = '{letter}';
     int count = 0;
     int i = 0;
@@ -19,12 +19,12 @@ int main() {
         i++;
     }
     std::cout << "Number of '{letter}' letters in the text: " << count;
-    {^2^}std::string str = "{dictionary}";
+    {2}std::string str = "{dictionary}";
     char letter = '{letter}';
     for (int i = 0; i < str.length(); i++) {
         if (str[i] == letter)
             str.erase(i, 1);
     }
     std::cout << "The output word: " << str;
-    {^-^}return 0;
+    {*}return 0;
 }

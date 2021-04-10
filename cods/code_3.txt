@@ -1,20 +1,22 @@
 #include <iostream>
 void func(int a, int b, int c) {
     int result = 0;
-    {^0^}while (result < a) {
+    {-}while (result < a) {
 	result += b;
-    }{^1^}while (result < b) {
+    }
+    {1}while (result < b) {
 	result += a;
-    }{^2^}while (result != c) {
+    }
+    {2}while (result != c) {
 	result++;
     }
-    {^-^}std::cout << "result: " << result;
+    {*}std::cout << "result: " << result;
 }
 int main() {
     int a = {number};
     int b = {number};
-    {^0^}int c = a {action} b;
-    {^1^}int c = b {action} a;
-    {^-^}func(a,b,c);
+    {-}int c = a {action} b;
+    {1}int c = b {action} a;
+    {*}func(a,b,c);
     return 0;
 }
