@@ -5,6 +5,7 @@ import subprocess
 import ast
 import ctypes
 import numpy
+import re
 
 path = os.getcwd()
 path_compile = path+'/quest.cpp'
@@ -14,21 +15,22 @@ generator = ast.literal_eval(generator.read())
 sign_for_action = generator['sign_for_action']
 fractional_number = generator['fractional_number']
 dictionary = generator['dictionary']
+count_multichoice = generator['count_multichoice']
 cmd_codepage = os.device_encoding(1) or ctypes.windll.kernel32.GetOEMCP()
 
 class Generation(): #Генерация вопроса
     def __init__(self):
         super().__init__()
+        self.add_quest = ''
 
     def question_gen(self):
-        DEVNULL = os.open(os.devnull, os.O_WRONLY)
         path_code = path+'/cods'
         code = random.choice(list(filter(lambda x: x.endswith('.txt'), os.listdir(path_code))))
         type_quiz = random.randint(1,5) #логические, синтаксические, при результате выдать ответ, стандарт вопрос
-        #type_quiz = 4
-        #code = 'code_2.txt'
+        type_quiz = 4
+        code = 'code_2.txt'
 
-        if type_quiz == 3 and not code.replace(".txt","") in generator['type_quiz_exception']:
+        if type_quiz == 3 and not code.replace(".txt","") in generator['type_quiz_exception']: #самостоятельно определять и 3
             type_quiz = 4
 
         file = open(path_code+"/"+code,'r')
@@ -55,26 +57,35 @@ class Generation(): #Генерация вопроса
             os_out = self.write_code(quest_out[0])
 
         file.close()
-        lines_out = self.number_lines(path_output)
-        with open(lines_out[0], "r") as f:
+        with open(self.number_lines(path_output), "r") as f:
             text = f.read()
 
-        #check = subprocess.call(os_out, shell=True, stdout=DEVNULL, stderr=subprocess.STDOUT)
+        #check = subprocess.call(os_out, shell=True, stdout=os.open(os.devnull, os.O_WRONLY), stderr=subprocess.STDOUT)
         if type_quiz == 3 and quest_out[3] == 0:
-            ans_out = self.answer_true(os_out)
+            ans_out = self.answer_true(os_out)[0][1]
             if Generation.is_float(ans_out):
                 ans_out = round(float(ans_out),fractional_number)
             quiz = "При каком значении "+quest_out[4]+" программа выдаст результат: "+str(ans_out)
             ans = quest_out[2]
         elif type_quiz == 4 or quest_out[3] == 1: #если не найдется ошибки или не выполниться 3 тип вопроса, то сгенерируется стандартный вопрос
-            quiz = "Введите ответ программы:"
-            ans = self.answer_true(os_out)
+            answers = self.answer_true(os_out)
+            if len(answers) == 1:
+                quiz = "Введите ответ программы"+self.add_quest+" "+str(answers[0][0])+": "
+                ans = answers[0][1]
+            else:
+                quiz = "Сопоставьте решения: "
+                ans = answers
         elif quest_out[3] == 0 and (type_quiz == 1 or type_quiz == 2):
-            quiz = "Введите строчку кода, где допущена ошибка:"
+            quiz = "Введите строчку кода, где допущена ошибка: "
             if quest_out[2] != '':
                 ans = quest_out[2]
             else:
-                ans = self.answer_false(os_out)
+                answers = self.answer_false(os_out)
+                if len(answers) == 1:
+                    ans = answers[0][1]
+                else:
+                    quiz = "Сопоставьте ошибки со строчками кода: "
+                    ans = answers
         elif type_quiz == 5:
             chance = random.randint(1,2)
             ans_find = self.answer_true(os_out)
@@ -88,7 +99,7 @@ class Generation(): #Генерация вопроса
                 ans_out = round(float(ans_out),fractional_number)
             quiz = "При компиляции программы результат будет: "+str(ans_out)
         
-        return [text,str(ans),quiz,type_quiz,lines_out[1]]
+        return [text,ans,quiz,type_quiz]
 
     def is_float(str):
         try:
@@ -107,28 +118,13 @@ class Generation(): #Генерация вопроса
         except ValueError:
             return False
 
-    def count_elements(self, quest):
-        text = quest.split()
-        count_number = 0
-        count_action = 0
-        count_dictionary = 0
-
-        for word in text:
-            if word.find("{number}") != -1:
-                count_number+=1
-            if word.find("{action}") != -1:
-                count_action += 1
-            if word.find("{dictionary}") != -1:
-                count_dictionary += 1
-
-        return [count_number, count_action, count_dictionary]
-
     def counting(self, quest, search):
         text = quest.split()
         count = 0
         for word in text:
                 if word.find(search) != -1:
                     count += 1
+
         return count
 
     def noise(self, quest): # вставлять синтаксис перед строчкой кода
@@ -168,7 +164,9 @@ class Generation(): #Генерация вопроса
         quest_out = quest
         quest = self.noise(quest)
         quest_out = self.noise(quest)
-        count = self.count_elements(quest)
+        count_number = self.counting(quest,"{number}")
+        count_action = self.counting(quest,"{action}")
+        count_dictionary = self.counting(quest,"{dictionary}")
         choice = random.randint(1,2)
         check_division = 0
         out = ''
@@ -176,11 +174,11 @@ class Generation(): #Генерация вопроса
         generated_number = list(generator['generated_number'])
         not_error = 0
 
-        if count[0] != 0 and choice == 1:
+        if count_number != 0 and choice == 1:
             j = 0
             number = []
-            num = random.randint(0,count[0]-1)
-            for i in range(count[0]):
+            num = random.randint(0,count_number-1)
+            for i in range(count_number):
                 index = quest.find("{number}")
                 index2 = quest_out.find("{number}")
                 quest = quest[:index+len("{number}")-1] + str(i) + quest[index+len("{number}")-1:]
@@ -193,9 +191,9 @@ class Generation(): #Генерация вопроса
                     quest_out = quest_out.replace("{number"+str(i)+"}", "[number]")
                     out = number[num]
                 j += 1
-            if count[1] != 0:
+            if count_action != 0:
                 action = []
-                for i in range(count[1]):
+                for i in range(count_action):
                     index = quest.find("{action}")
                     index2 = quest_out.find("{action}")
                     quest = quest[:index+len("{action}")-1] + str(i) + quest[index+len("{action}")-1:]
@@ -206,11 +204,11 @@ class Generation(): #Генерация вопроса
                     if action[i] == '/':
                         check_division = 1
             out2 = "[number]"
-        elif count[1] != 0 and choice == 2:
+        elif count_action != 0 and choice == 2:
             j = 0
             action = []
-            num = random.randint(0,count[1]-1)
-            for i in range(count[1]):
+            num = random.randint(0,count_action-1)
+            for i in range(count_action):
                 index = quest.find("{action}")
                 index2 = quest_out.find("{action}")
                 quest = quest[:index+len("{action}")-1] + str(i) + quest[index+len("{action}")-1:]
@@ -225,9 +223,9 @@ class Generation(): #Генерация вопроса
                     quest_out = quest_out.replace("{action"+str(i)+"}", "[action]")
                     out = action[num]
                 j += 1
-            if count[0] != 0:
+            if count_number != 0:
                 number = []
-                for i in range(count[0]):
+                for i in range(count_number):
                     index = quest.find("{number}")
                     index2 = quest_out.find("{number}")
                     quest = quest[:index+len("{number}")-1] + str(i) + quest[index+len("{number}")-1:]
@@ -236,16 +234,16 @@ class Generation(): #Генерация вопроса
                     quest = quest.replace("{number"+str(i)+"}", number[i])
                     quest_out = quest_out.replace("{number"+str(i)+"}", number[i])
             out2 = "[action]"
-        elif count[2] != 0:
+        elif count_dictionary != 0:
             dictionary = []
-            for i in range(count[2]):
+            for i in range(count_dictionary):
                 index = quest.find("{dictionary}")
                 quest = quest[:index+len("{dictionary}")-1] + str(i) + quest[index+len("{dictionary}")-1:]
                 dictionary.append(random.choice(dictionary))
                 quest = quest.replace("{dictionary"+str(i)+"}", dictionary[i])
             quest_out = quest
             if quest.find("{letter}") != -1:
-                dictionary2 = dictionary[random.randint(0, count[2]-1)]
+                dictionary2 = dictionary[random.randint(0, count_dictionary-1)]
                 out = random.choice(list(dictionary2))
                 quest = quest.replace("{letter}",out)
                 count_letter = 0
@@ -271,76 +269,6 @@ class Generation(): #Генерация вопроса
 
         return [quest,quest_out,out,not_error,out2] #Сделать проверку на единественный верный ответ, если при вычислениях будут 1 и больше вариантов
 
-    def type_code_error(self, quest, error_choice):
-        text = quest.split()
-        choice = random.randint(1,2)
-        #choice = 2
-        count_error = self.counting(quest, error_choice)
-        index = 0
-        error_syntax = list(generator['error_syntax'])
-        num_error = random.randint(0,count_error-1)
-
-        if count_error != 0 and error_choice == error_syntax[0] and choice == 1: #int
-            num_check = []
-            for i in range(count_error):
-                index = quest.find(error_choice,index)
-                if index == quest.find("int main"):
-                    num_check.append(i)
-                if index == quest.find("int func") or index == quest.find("float func"):
-                    num_check.append(i)
-                if i == num_error and not num_error in num_check:
-                    quest = quest[:index] + '{replace_item}' + quest[index+len(error_choice):]
-                    choice_int = random.randint(1,3)
-                    if choice_int == 1:
-                        quest = quest.replace('{replace_item}', '')
-                        break
-                    elif choice_int == 2:
-                        quest = quest.replace('{replace_item}', str(random.choice(generator['generated_number']))+'int')
-                        break
-                    else:
-                        quest = quest.replace('{replace_item}', str(random.choice(generator['error_replace'][0]))+' ')
-                        break
-        elif count_error != 0 and choice == 2 and error_choice != error_syntax[0]: #добавление или замена
-            #error_replace = list(generator['error_replace'])
-            error_syntax.remove('int')            
-            for i in range(count_error):
-                index = quest.find(error_choice,index)
-                if i == num_error:
-                    quest = quest[:index] + '{replace_item}' + quest[index+len(error_choice):]
-                    quest = quest.replace('{replace_item}', str(error_choice+error_choice))
-                    break
-        else: #удаление
-            for i in range(count_error):
-                index = quest.find(error_choice,index)
-                if i == num_error:
-                    quest = quest[:index] + '{replace_item}' + quest[index+len(error_choice):]
-                    quest = quest.replace('{replace_item}', '')
-                    break
-
-        return quest
-
-    def type_code_logic(self, quest):
-        choice = random.randint(1,2)
-        #choice = 1
-        quest_out = ''
-        out = ''
-        out_error = []
-        not_error = 0
-        error_choice = random.choice(generator['error_logic'])
-
-        if choice == 1 and (quest.find("int result") != -1 or quest.find("float result") != -1) and (quest.find("int func") != -1 or quest.find("float func") != -1): #удаляет return result
-            index = quest.find("return result;")
-            quest = quest[:index-3] + quest[index+15:]
-            quest_out = quest
-        elif quest.find(error_choice) != -1 and choice == 2:
-            quest = self.type_code_error(quest, error_choice)
-            quest_out = quest
-        else:
-            not_error = 1
-            quest_out = quest
-
-        return [quest,quest_out,out,not_error]
-
     def error_line(self, quest, error_delete, error_replace):
         count_error = self.counting(quest, error_delete)
         num_error = random.randint(1,count_error)
@@ -363,83 +291,184 @@ class Generation(): #Генерация вопроса
         
         return [quest_out, out]
 
+    def num_error_count(self, count_error):
+        num_error = []
+        num_error_list = random.randint(1,count_error)
+        num_error_count = []
+        for k in range(count_error):
+            num_error_count.append(k)
+        random.shuffle(num_error_count)
+        for k in num_error_count:
+            num_error.append(k)
+            num_error_list -= 1
+            if num_error_list == 0:
+                break
+        
+        return num_error
+
+    def type_code_error(self, quest, error_choice):
+        choice = random.randint(1,2)
+        count_error = self.counting(quest, error_choice)
+        num_error = self.num_error_count(count_error)
+        index = 0
+
+        if count_error != 0 and choice == 1: #добавление или замена      
+            for i in range(count_error):
+                index = quest.find(error_choice,index)
+                if i in num_error:
+                    quest = quest[:index] + '{replace_item}' + quest[index+len(error_choice):]
+                    quest = quest.replace('{replace_item}', str(error_choice+error_choice))
+                    break
+                index += len(error_choice)
+        elif count_error != 0 and choice == 2: #удаление
+            for i in range(count_error):
+                index = quest.find(error_choice,index)
+                if i in num_error:
+                    quest = quest[:index] + '{replace_item}' + quest[index+len(error_choice):]
+                    quest = quest.replace('{replace_item}', '')
+                    break
+                index += len(error_choice)
+
+        return quest
+
+    def type_code_logic(self, quest):
+        choice = random.randint(1,2) #нет смысла в error_logic
+        #choice = 1
+        quest_out = ''
+        out = ''
+        out_error = []
+        not_error = 0
+        error_choice = random.choice(generator['error_logic'])
+
+        if choice == 1 and (quest.find("int result") != -1 or quest.find("float result") != -1) and (quest.find("int func") != -1 or quest.find("float func") != -1): #удаляет return result
+            index = quest.find("return result;")
+            quest = quest[:index-3] + quest[index+15:]
+        elif quest.find("==") != -1 and choice == 2: #a == b
+            error_request = self.error_line(quest,"==","=")
+            quest_out = error_request[0]
+            out = error_request[1]
+        elif quest.find(error_choice) != -1 and choice == 3:
+            quest = self.type_code_error(quest, error_choice)
+        else:
+            not_error = 1
+
+        if choice != 2:
+            quest_out = quest
+
+        return [quest,quest_out,out,not_error]
+
     def type_code_syntax(self, quest):
         choice = random.randint(1,7)
-        #choice = 3
+        choice = 7
         quest_out = ''
         out = ''
         out_error = []
         not_error = 0
         error_choice = random.choice(generator['error_syntax'])
-        #error_choice = ";"
 
-        if (quest.find("int func") != -1 or quest.find("float func") != -1) and choice == 1: #не работает
+        if (quest.find("int func") != -1 or quest.find("float func") != -1) and choice == 1:
             count_func = self.counting(quest, "func")
             func_check = []
             index_prev = 0           
             for i in range(count_func):
                 index_next = quest.find("func",index_prev)
-                if index_next == (quest.find("int func")+4) or index_next == (quest.find("float func")+7):
+                if index_next == (quest.find("int func")+4) or index_next == (quest.find("float func")+6):
                     func_check.append(i)
                 index_prev = index_next+5
                 index_next = quest.find(")",index_prev)
                 if not i in func_check:
                     choice_func = random.randint(1,2)
+                    choice_func = 2
                     if choice_func == 1:
                         quest = quest[:index_prev] + '{replace_item}' + quest[index_next:]
                         quest = quest.replace('{replace_item}', '')
-                    else:
+                    else: #не работает нормально
                         num_delete = random.randrange(index_prev+2,index_next,2)
+                        num_delete = index_prev+4
                         quest = quest[:index_prev] + quest[index_prev:num_delete-2] + quest[num_delete:index_next] + quest[index_next:]
-            quest_out = quest
-        elif quest.find("void func") != -1 and choice == 2: #добавить result в функцию void
+        elif quest.find("void func") != -1 and choice == 1: #добавить result в функцию void
             index = quest.find("}\nint main")
-            quest = quest[:index-1] + "\n    return result;\n" + quest[index:]
+            quest = quest[:index] + "return result;\n" + quest[index:]
             quest_out = quest
-        elif quest.find("==") != -1 and choice == 3:
-            error_request = self.error_line(quest,"==","=")
-            quest_out = error_request[0]
-            out = error_request[1]
+        elif quest.find("using namespace std;") != -1 and quest.find("cout") != -1 and choice == 2: #если есть using namespace std;
+            count_cout = self.counting(quest, "cout")
+            for i in range(count_cout):
+                index = quest.find(type_choice,index)
+                if i == num_error:
+                    quest = quest[:index] + '{replace_item}' + quest[index+len(error_choice):]
+                    quest = quest.replace('{replace_item}', 'std::cout')
+                    break
+        elif (quest.find("int") != -1 or quest.find("float") != -1 or quest.find("double") != -1) and choice == 3: #int, float, double на некоторых не выводит ошибку
+            num_check = []
+            if quest.find("float") != -1:
+                type_id = 'float'
+            elif quest.find("double") != -1:
+                type_id = 'double'
+            elif quest.find("int") != -1:
+                type_id = 'int'
+            count_error = self.counting(quest, type_id)
+            num_error = self.num_error_count(count_error)
+            index = 0
+            for i in range(count_error):
+                index = quest.find(type_id,index)
+                if index == quest.find("int main") and type_id == 'int':
+                    num_check.append(i)
+                if (index == quest.find("int func") and type_id == 'int') or (index == quest.find("float func") and type_id == 'float') or (index == quest.find("double func") and type_id == 'double'):
+                    num_check.append(i)
+                if i in num_error and not num_error in num_check:
+                    quest = quest[:index] + '{replace_item}' + quest[index+len(type_id):]
+                    choice_type = random.randint(1,3)
+                    if choice_type == 1:
+                        quest = quest.replace('{replace_item}', '')
+                        break
+                    elif choice_type == 2:
+                        quest = quest.replace('{replace_item}', str(random.choice(generator['generated_number']))+type_id)
+                        break
+                    else:
+                        quest = quest.replace('{replace_item}', str(random.choice(generator['error_replace'][0])))
+                        break
+                index += len(type_id)
         elif quest.find("result") != -1 and choice == 4: #вставить const
             if quest.find("int result") != -1:
                 quest = quest.replace("int result", "const int result")
             elif quest.find("float result") != -1:
                 quest = quest.replace("float result", "const float result")
-            quest_out = quest
-        elif (quest.find("char str[]") != -1 or quest.find("string str") != -1) and choice == 5:
+        elif (quest.find("char str[]") != -1 or quest.find("string str") != -1) and choice == 5: #string и char
             if quest.find("char str[]") != -1:
                 quest = quest.replace("char str[]","char *str[]")
             if quest.find("string str") != -1:
                 quest = quest.replace("string str","string *str")
-            quest_out = quest
-        elif quest.find(error_choice) != -1 and choice == 6:
-            quest = self.type_code_error(quest, error_choice)
-            quest_out = quest
-        elif quest.find(";") != -1 and choice == 7:
+        elif quest.find(";") != -1 and choice == 6: #; удалять
             error_request = self.error_line(quest,";","")
             quest_out = error_request[0]
             out = error_request[1]
+        elif quest.find(error_choice) != -1 and choice == 7:
+            quest = self.type_code_error(quest, error_choice)
         else:
             not_error = 1
+
+        if choice != 6:
             quest_out = quest
 
         return [quest,quest_out,out,not_error]
 
     def read_code(self, quest):
         quest = self.noise(quest)
-        count = self.count_elements(quest)
+        count_number = self.counting(quest,"{number}")
+        count_action = self.counting(quest,"{action}")
+        count_dictionary = self.counting(quest,"{dictionary}")
         check_division = 0
         index = 0
 
-        if count[0] != 0: #генерация чисел
+        if count_number != 0: #генерация чисел
             generated_number = list(generator['generated_number'])
-            for i in range(count[0]):
+            for i in range(count_number):
                 index = quest.find("{number}")
                 quest = quest[:index+len("{number}")-1] + str(i) + quest[index+len("{number}")-1:]
                 quest = quest.replace("{number"+str(i)+"}", str(random.randint(generated_number[0],generated_number[1])))  
-        if count[1] != 0: #генерация вычислений
+        if count_action != 0: #генерация вычислений
             action = []
-            for i in range(count[1]):
+            for i in range(count_action):
                 index = quest.find("{action}")
                 action.append(str(random.choice(sign_for_action)))
                 if action[i] == '/':
@@ -447,17 +476,18 @@ class Generation(): #Генерация вопроса
                 quest = quest[:index+len("{action}")-1] + str(i) + quest[index+len("{action}")-1:]
                 quest = quest.replace("{action"+str(i)+"}", action[i])
             if check_division == 1:
+                self.add_quest = " (Округлите до "+str(1 / (10 ** generator['fractional_number']))+")"
                 quest = quest.replace("int","float")
                 quest = quest.replace("float main","int main")        
-        if count[2] != 0: #словарь слов
+        if count_dictionary != 0: #словарь слов
             dictionary_list = []
-            for i in range(count[2]):
+            for i in range(count_dictionary):
                 index = quest.find("{dictionary}")
                 quest = quest[:index+len("{dictionary}")-1] + str(i) + quest[index+len("{dictionary}")-1:]
                 dictionary_list.append(random.choice(dictionary))
                 quest = quest.replace("{dictionary"+str(i)+"}", dictionary[i])
             if quest.find("{letter}") != -1:
-                letter = list(dictionary_list[random.randint(0, count[2]-1)])
+                letter = list(dictionary_list[random.randint(0, count_dictionary-1)])
                 quest = quest.replace("{letter}",random.choice(letter))
         if quest.find("<fstream>") != -1:
             path_files = path+'/files'
@@ -530,20 +560,34 @@ class Generation(): #Генерация вопроса
         if os.path.exists(path+"/quest"):
             os.remove(os.path.join("quest"))
 
-    def answer_true(self, os_out):
+    def answer_true(self, os_out): #написать что важно после каждого ответа ставить endl или \n и :
         os_out += " && " + path + "/quest"
         ans = subprocess.check_output(os_out, shell=True, encoding=cmd_codepage, stderr=subprocess.STDOUT)
-        index = ans.find(":")
-        if index != -1:
-            ans = ans[index+2:]
+        count_ans = self.counting(ans,":")
+        answers = []
+        if count_ans == 0:
+            answers.append(str(ans))
+        else:
+            index_first = 0
+            index_middle = 0
+            for i in range(count_ans):
+                index_first = ans.find(":",index_first)
+                index_last = ans.find("\n",index_first)
+                if index_last == -1:
+                    index_last = ans.find('\0',index_first)
+                if index_first != -1:
+                    answers.append([])
+                    answers[i].append(str(ans[index_middle:index_first]))
+                    answers[i].append(str(ans[index_first+2:index_last]))
+                    index_first += 1
+                    index_middle = index_last+1
 
-        return ans
+        return answers
 
     def answer_false(self, os_out):
         process = subprocess.Popen(os_out, shell=True, stdout=subprocess.PIPE, encoding=cmd_codepage, stderr=subprocess.STDOUT)
         tmp = process.stdout.read()
-        print(tmp)
-        tmp = tmp.replace(path+"\quest.cpp:","")
+        tmp = tmp.replace(path+"/quest.cpp:","")
         tmp = tmp.replace(" In function 'int main()':\n","")
         index = tmp.find(" In function 'int func")
         if index != -1:
@@ -554,8 +598,27 @@ class Generation(): #Генерация вопроса
         index = tmp.find(" In function 'void func")
         if index != -1:
             tmp = self.delete_error_code(tmp,index)
+        print(tmp)
+        count_ans = self.counting(tmp,"error:") + self.counting(tmp,"warning:") + self.counting(tmp,"note:")
+        answers = []
+        index_first = 0
+        for i in range(count_ans):
+            index_first = tmp.find("error:",index_first)
+            if index_first == -1:
+                index_first = tmp.find("warning:",index_first)
+            if index_first == -1:
+                index_first = tmp.find("note:",index_first)
+            index_second = tmp.find("\n",index_first)
+            index_last = tmp.find("|",index_second)
+            ans = tmp[index_second+1:index_last]
+            ans = re.findall('(\d+)',ans)
+            if ans != []:
+                answers.append([])
+                answers[i].append(str(tmp[index_last+2:tmp.find("\n",index_last)]))
+                answers[i].append(str(ans[0]))
+                index_first = tmp.find("\n",index_last)
 
-        return tmp[:tmp.find(":")-1]
+        return answers
 
     def delete_error_code(self, tmp, index):
         index2 = tmp.find(":\n",index)
@@ -564,11 +627,9 @@ class Generation(): #Генерация вопроса
         return tmp
 
     def number_lines(self, filename, start=1):
-        lines = []
         with fileinput.FileInput(filename, inplace=True, backup='.bak') as file:
             for n, line in enumerate(file, start=start):
-                lines.append(line)
                 print(n, '    ', line, end='')
         os.unlink(filename + '.bak')
 
-        return [filename, lines]
+        return filename

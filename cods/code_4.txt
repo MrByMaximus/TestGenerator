@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring>
+using namespace std;
 int main() {
     {-}char str[] = "{dictionary}";
     int count = 0;
@@ -8,7 +9,7 @@ int main() {
         count++;
         i++;
     }
-    std::cout << "Number of characters in the text: " << count;
+    cout << "Number of characters in the text: " << count;
     {1}char str[] = "{dictionary}";
     char letter = '{letter}';
     int count = 0;
@@ -18,13 +19,13 @@ int main() {
             count++;
         i++;
     }
-    std::cout << "Number of '{letter}' letters in the text: " << count;
-    {2}std::string str = "{dictionary}";
+    cout << "Number of '{letter}' letters in the text: " << count;
+    {2}string str = "{dictionary}";
     char letter = '{letter}';
     for (int i = 0; i < str.length(); i++) {
         if (str[i] == letter)
             str.erase(i, 1);
     }
-    std::cout << "The output word: " << str;
+    cout << "The output word: " << str;
     {*}return 0;
 }

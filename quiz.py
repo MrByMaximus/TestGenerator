@@ -2,6 +2,7 @@ import webbrowser, sys, os
 from contextlib import redirect_stdout
 from jinja2 import Template
 from generation import generator
+import random
 
 class Quiz: #Запись в html и xml
     def __init__(self, filename, htmlFilename=""):
@@ -18,7 +19,7 @@ class Quiz: #Запись в html и xml
     def CheckChoiceList(self, choiceList, count_multichoice):
         if len(choiceList) > count_multichoice:
             tmp = choiceList[1:]
-            shuffle(tmp)
+            random.shuffle(tmp)
             choiceList = [choiceList[0]] + tmp[:count_multichoice-1]
 
         if len(choiceList) != count_multichoice:
@@ -45,7 +46,6 @@ class Quiz: #Запись в html и xml
     
     def addTrueFalseQuestion(self, name, question_title, question, choiceList):
         choiceList = self.CheckChoiceList(choiceList, 2)        
-
         with redirect_stdout(self.f):
             self.questionHeader("truefalse", name, question, question_title)
             xml = Template(' <answer fraction="100"><text>{{item}}</text></answer>')
@@ -59,25 +59,22 @@ class Quiz: #Запись в html и xml
         self.addHtmlAnswerBlockMultichoice(choiceList)
         self.edit_open('</body></html>')
 
-    def addMatchingQuestion(self, name, question_title, question, choiceList, ChoiceListAnswer, count_multichoice):
-        choiceList = self.CheckChoiceList(choiceList, count_multichoice)
-        choiceListAnswer = self.CheckChoiceList(choiceListAnswer, count_multichoice)
-
+    def addMatchingQuestion(self, name, question_title, question, сhoiceListAnswer, choiceList):
+        #random.shuffle(сhoiceListAnswer)
         with redirect_stdout(self.f):
             self.questionHeader("matching", name, question, question_title)
-            for (item, item_answer) in zip(choiceList, choiceListAnswer):
-                xml = Template(' <subquestion><text>{{item_answer}}</text><answer><text>{{item}}</text></answer></subquestion>')
+            for (item, item_answer) in zip(choiceList, сhoiceListAnswer):
+                xml = Template(' <subquestion><text>{{item}}</text><answer><text>{{item_answer}}</text></answer></subquestion>')
                 print(str(xml.render(item=item,item_answer=item_answer)))
             print('<shuffleanswers>true</shuffleanswers>\n</question>')
 
         self.addHtmlHeader()
         self.addHtmlQuestionBlock(name, question, question_title, 'matching')
-        self.addHtmlAnswerBlockMultichoice(choiceList)
+        self.addHtmlAnswerBlockMatching(сhoiceListAnswer, choiceList)
         self.edit_open('</body></html>')
 
     def addMultipleChoiceQuestion(self, name, question_title, question, choiceList, count_multichoice):
         choiceList = self.CheckChoiceList(choiceList, count_multichoice)
-
         with redirect_stdout(self.f):
             self.questionHeader("multichoice", name, question, question_title)
             xml = Template(' <answer fraction="100"><text>{{choiceList}}</text></answer>')
@@ -94,14 +91,12 @@ class Quiz: #Запись в html и xml
 
     def questionHeader(self, type, name, question, question_title):
         with redirect_stdout(self.f):
-            xml = Template('<question type="{{type}}">\n <name>\n  <text>{{name}}</text>\n </name>\n <questiontext>\n  <text>\n{{question_title}}<br /><br />')
-            print(str(xml.render(type=type,name=name,question_title=question_title)))
-            line_numbers = 1
-            for item in question:
-                xml = Template('<pre>{{line_numbers}}    {{item | e}}</pre>')
-                print(str(xml.render(line_numbers=line_numbers,item=item)))
-                line_numbers += 1
-            print(' ]]>\n  </text>\n </questiontext>')
+            xml = Template('<question type="{{type}}">\n <name>\n  <text>{{name}}</text>\n </name>\n <questiontext format="html">\n  <text><![CDATA[<pre>')
+            print(str(xml.render(type=type,name=name)))
+            xml = Template('{{question | e}}')
+            print(str(xml.render(question=question)))
+            xml = Template('</pre><br /><br />{{question_title}}]]>\n  </text>\n </questiontext>')
+            print(str(xml.render(question_title=question_title)))
 
     def addHtmlHeader(self):
         if os.path.getsize(self.htmlFilename):
@@ -128,14 +123,24 @@ class Quiz: #Запись в html и xml
         self.edit_open(html)
 
     def addHtmlQuestionBlock(self, name, question, question_title, questionType):
-        html_out = Template('<body><h2>{{name}}</h2><div class="que {{questionType}} deferredfeedback "><div class="content"><div class="formulation clearfix"><div class="qtext">\n{{question_title}}<br /><br />')
-        html = str(html_out.render(name=name,questionType=questionType,question_title=question_title))
-        line_numbers = 1
-        for item in question:
-            html_out = Template('<pre>{{line_numbers}}    {{item | e}}</pre>')
-            html += str(html_out.render(line_numbers=line_numbers,item=item))
-            line_numbers += 1
-        html += '</div>\n'
+        html_out = Template('<body><h2>{{name}}</h2><div class="que {{questionType}} deferredfeedback "><div class="content"><div class="formulation clearfix"><div class="qtext"><pre>')
+        html = str(html_out.render(name=name,questionType=questionType))
+        html_out = Template('{{question | e}}')
+        html += str(html_out.render(question=question))
+        html_out = Template('</pre><br /><br />{{question_title}}</div>\n')
+        html += str(html_out.render(question_title=question_title))
+        self.edit_open(html)
+
+    def addHtmlAnswerBlockMatching(self, сhoiceListAnswer, choiceList):
+        html = '<br /><div class="ablock"><div class="answer">'
+        for item in choiceList:
+            html_out = Template('<label>{{item}}</label>')
+            html += str(html_out.render(item=item)) + '<form action="formdata" method="post" name="form1"><select name="list1">'
+            for item_answer in сhoiceListAnswer:
+                html_out = Template('<option>{{item_answer}}</option>')
+                html += str(html_out.render(item_answer=item_answer))
+            html += '</select></form>'        
+        html += '</div></div></div></div></div>'
         self.edit_open(html)
 
     def addHtmlAnswerBlockMultichoice(self, choiceList):
