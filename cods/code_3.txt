@@ -10,7 +10,7 @@ void func(int a, int b, int c) {
     {2}while (result != c) {
 	result++;
     }
-    {*}std::cout << "result: " << result;
+    {*}std::cout << "result: " << result << "\n";
 }
 int main() {
     int a = {number};

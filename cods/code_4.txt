@@ -9,7 +9,7 @@ int main() {
         count++;
         i++;
     }
-    cout << "Number of characters in the text: " << count;
+    cout << "Number of characters in the text: " << count << "\n";
     {1}char str[] = "{dictionary}";
     char letter = '{letter}';
     int count = 0;
@@ -19,13 +19,13 @@ int main() {
             count++;
         i++;
     }
-    cout << "Number of '{letter}' letters in the text: " << count;
+    cout << "Number of '{letter}' letters in the text: " << count << "\n";
     {2}string str = "{dictionary}";
     char letter = '{letter}';
     for (int i = 0; i < str.length(); i++) {
         if (str[i] == letter)
             str.erase(i, 1);
     }
-    cout << "The output word: " << str;
+    cout << "The output word: " << str << "\n";
     {*}return 0;
 }

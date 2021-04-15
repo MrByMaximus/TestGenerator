@@ -1,0 +1,83 @@
+<?xml version="1.0" ?><quiz>
+<question type="multichoice">
+ <name>
+  <text>Вопрос №1</text>
+ </name>
+ <questiontext format="html">
+  <text><![CDATA[<pre>
+1      #include &lt;iostream&gt;
+2      int func(int a, int b) {
+3          int c = -30;
+4          int result = b * a;
+5          return result;
+6      }
+7      int main() {
+8          int a = 51;
+9          int b = 61;
+10          std::cout &lt;&lt; &#34;result: &#34; &lt;&lt; func(a,b) &lt;&lt; &#34;\n&#34;;
+11          return 0;
+12      }
+</pre><br /><br />Введите ответ программы result: ]]>
+  </text>
+ </questiontext>
+ <answer fraction="100"><text>3111</text></answer>
+ <answer fraction="-33.33333" format="html"><text>3106</text></answer>
+ <answer fraction="-33.33333" format="html"><text>3116</text></answer>
+ <answer fraction="-33.33333" format="html"><text>3115</text></answer>
+<answernumbering>none</answernumbering>
+<shuffleanswers>1</shuffleanswers>
+<single>true</single>
+</question>
+<question type="shortanswer">
+ <name>
+  <text>Вопрос №2</text>
+ </name>
+ <questiontext format="html">
+  <text><![CDATA[<pre>
+1      #include &lt;iostream&gt;
+2      int main() {
+3          int a = 49;
+4          int b = 69;
+5          if (a == b)
+6      	std::cout &lt;&lt; &#34;The numbers are equal&#34; &lt;&lt; &#34;\n&#34;;
+7          else
+8      	std::cout &lt;&lt; &#34;The numbers are not equal&#34; &lt;&lt; &#34;\n&#34;;
+9          return 0;
+10      }
+</pre><br /><br />Введите ответ программы: ]]>
+  </text>
+ </questiontext>
+<usecase>0</usecase>
+<answer fraction="100" format="moodle_auto_format"><text>The numbers are not equal</text></answer>
+</question>
+<question type="truefalse">
+ <name>
+  <text>Вопрос №3</text>
+ </name>
+ <questiontext format="html">
+  <text><![CDATA[<pre>
+1      #include &lt;iostream&gt;
+2      #include &lt;cmath&gt;
+3      int main() {
+4          double a = 32;
+5          double b = -43;
+6          double c = -46;
+7          double x1, x2;
+8          if ((b*b - 4*a*c) &gt;= 0) {
+9              x1 = (-1*b + sqrt(b*b - 4*a*c)) / (2 * a);
+10              std::cout &lt;&lt; &#34;x1: &#34; &lt;&lt; x1 &lt;&lt; &#34;\n&#34;;
+11              x2 = (-1*b - sqrt(b*b - 4*a*c)) / (2 * a);
+12              std::cout &lt;&lt; &#34;x2: &#34; &lt;&lt; x2 &lt;&lt; &#34;\n&#34;;
+13          }
+14          else {
+15              std::cout &lt;&lt; &#34;The discriminant is less than 0&#34; &lt;&lt; &#34;\n&#34;;
+16          }
+17          return 0;
+18      }
+</pre><br /><br />При компиляции программы результат будет: 3]]>
+  </text>
+ </questiontext>
+ <answer fraction="100"><text>Нет</text></answer>
+ <answer fraction="0"><text>Да</text></answer>
+</question>
+</quiz>

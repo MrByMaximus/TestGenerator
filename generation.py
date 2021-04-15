@@ -5,7 +5,6 @@ import subprocess
 import ast
 import ctypes
 import numpy
-import re
 
 path = os.getcwd()
 path_compile = path+'/quest.cpp'
@@ -27,8 +26,8 @@ class Generation(): #Генерация вопроса
         path_code = path+'/cods'
         code = random.choice(list(filter(lambda x: x.endswith('.txt'), os.listdir(path_code))))
         type_quiz = random.randint(1,5) #логические, синтаксические, при результате выдать ответ, стандарт вопрос
-        type_quiz = 4
-        code = 'code_2.txt'
+        #type_quiz = 4
+        #code = 'code_6.txt'
 
         if type_quiz == 3 and not code.replace(".txt","") in generator['type_quiz_exception']: #самостоятельно определять и 3
             type_quiz = 4
@@ -72,6 +71,9 @@ class Generation(): #Генерация вопроса
             if len(answers) == 1:
                 quiz = "Введите ответ программы"+self.add_quest+" "+str(answers[0][0])+": "
                 ans = answers[0][1]
+            elif type(answers) != list:
+                quiz = "Введите ответ программы"+self.add_quest+": "
+                ans = answers
             else:
                 quiz = "Сопоставьте решения: "
                 ans = answers
@@ -88,13 +90,17 @@ class Generation(): #Генерация вопроса
                     ans = answers
         elif type_quiz == 5:
             chance = random.randint(1,2)
-            ans_find = self.answer_true(os_out)
+            answers = self.answer_true(os_out)
+            if len(answers) > 1:
+                ans_find = random.choice(answers)
+            else:
+                ans_find = answers[0][1]
             if chance == 1:
                 ans = "yes"
-                ans_out = ans_find
+                ans_out = ans_find[0][1]
             else:
                 ans = "no"
-                ans_out = self.generated_fake_answer(ans_find)
+                ans_out = self.generated_fake_answer(ans_find[0][1])
             if Generation.is_float(ans_out):
                 ans_out = round(float(ans_out),fractional_number)
             quiz = "При компиляции программы результат будет: "+str(ans_out)
@@ -338,7 +344,7 @@ class Generation(): #Генерация вопроса
         out = ''
         out_error = []
         not_error = 0
-        error_choice = random.choice(generator['error_logic'])
+        #error_choice = random.choice(generator['error_logic'])
 
         if choice == 1 and (quest.find("int result") != -1 or quest.find("float result") != -1) and (quest.find("int func") != -1 or quest.find("float func") != -1): #удаляет return result
             index = quest.find("return result;")
@@ -566,20 +572,18 @@ class Generation(): #Генерация вопроса
         count_ans = self.counting(ans,":")
         answers = []
         if count_ans == 0:
-            answers.append(str(ans))
+            answers = str(ans).replace('\n','')
         else:
             index_first = 0
             index_middle = 0
             for i in range(count_ans):
-                index_first = ans.find(":",index_first)
-                index_last = ans.find("\n",index_first)
-                if index_last == -1:
-                    index_last = ans.find('\0',index_first)
+                index_first = ans.find(':',index_first)
+                index_last = ans.find('\n',index_first)
                 if index_first != -1:
                     answers.append([])
                     answers[i].append(str(ans[index_middle:index_first]))
-                    answers[i].append(str(ans[index_first+2:index_last]))
-                    index_first += 1
+                    answers[i].append(str(ans[index_first+2:index_last]).replace('\n',''))
+                    index_first += 2
                     index_middle = index_last+1
 
         return answers

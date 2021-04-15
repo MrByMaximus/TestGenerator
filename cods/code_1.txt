@@ -4,17 +4,17 @@ int main() {
     int b = {number};
     {-}std::cout << "min: ";
     if (a > b)
-        std::cout << b;
+        std::cout << b << "\n";
     else
-	std::cout << a;	
+	std::cout << a << "\n";	
     {1}std::cout << "max: ";
     if (a < b)
-        std::cout << b;
+        std::cout << b << "\n";
     else
-	std::cout << a;
+	std::cout << a << "\n";
     {2}if (a == b)
-	std::cout << "The numbers are equal";
+	std::cout << "The numbers are equal" << "\n";
     else
-	std::cout << "The numbers are not equal";
+	std::cout << "The numbers are not equal" << "\n";
     {*}return 0;
 }

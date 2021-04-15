@@ -9,26 +9,26 @@ int main() {
             fscanf(in,"%f",&buffer);
             if (buffer > 0) count++;
         }
-        printf("Number of positive numbers: %d", count);
+        printf("Number of positive numbers: %d\n", count);
     }
-    else puts("File empty");
+    else puts("File empty\n");
     {1}std::string line;
     std::ifstream in("files\\in.txt");
     if (in.is_open()) {
         while (getline(in, line)) {
-            std::cout << line;
+            std::cout << line << "\n";
         }
     }
-    else std::cout << "File empty";
+    else std::cout << "File empty" << "\n";
     in.close();
     {2}std::string line;
     std::ifstream in("files\\out.txt");
     if (in.is_open()) {
         while (getline(in, line)) {
-            std::cout << line;
+            std::cout << line << "\n";
         }
     }
-    else std::cout << "File empty";
+    else std::cout << "File empty" << "\n";
     in.close();
     {*}return 0;
 }

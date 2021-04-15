@@ -7,6 +7,6 @@ int func(int a, int b) {
 int main() {
     int a = {number};
     int b = {number};
-    std::cout << "result: " << func(a,b);
+    std::cout << "result: " << func(a,b) << "\n";
     return 0;
 }
