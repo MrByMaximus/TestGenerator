@@ -16,19 +16,13 @@ class Quiz: #Запись в html и xml
         file = open(htmlFilename, 'w', encoding="utf-8")
         file.close()
 
-    def CheckChoiceList(self, choiceList, count_multichoice):
+    def CheckChoiceList(self, choiceList, count_multichoice, count_true):
         if len(choiceList) > count_multichoice:
-            tmp = choiceList[1:]
+            tmp = choiceList[count_true:]
             random.shuffle(tmp)
-            choiceList = [choiceList[0]] + tmp[:count_multichoice-1]
-
-        if len(choiceList) != count_multichoice:
-            print("Ошибка: добавление вопроса с множественным выбором требует ровно" + count_multichoice + " варианта ответов. Дано:\n", choiceList)
-            sys.exit(-1)
-        if len(set(choiceList)) != count_multichoice:
-            print("Предупреждение: добавление вопроса с несколькими вариантами выбора с неуникальными опциями было проигнорировано:\n ", choiceList)
-            return
-
+            for k in range(count_true):
+                choiceList += [choiceList[k]]
+            choiceList += tmp[:count_multichoice-1]
         choiceList = [str(i) for i in choiceList]
         
         return choiceList
@@ -45,7 +39,7 @@ class Quiz: #Запись в html и xml
         self.edit_open('</body></html>')
     
     def addTrueFalseQuestion(self, name, question_title, question, choiceList):
-        choiceList = self.CheckChoiceList(choiceList, 2)        
+        #choiceList = self.CheckChoiceList(choiceList, 2, 1)        
         with redirect_stdout(self.f):
             self.questionHeader("truefalse", name, question, question_title)
             xml = Template(' <answer fraction="100"><text>{{item}}</text></answer>')
@@ -56,7 +50,7 @@ class Quiz: #Запись в html и xml
 
         self.addHtmlHeader()
         self.addHtmlQuestionBlock(name, question, question_title, 'truefalse')
-        self.addHtmlAnswerBlockMultichoice(choiceList)
+        self.addHtmlAnswerBlockMultichoice(choiceList, 1)
         self.edit_open('</body></html>')
 
     def addMatchingQuestion(self, name, question_title, question, сhoiceListAnswer, choiceList):
@@ -73,20 +67,21 @@ class Quiz: #Запись в html и xml
         self.addHtmlAnswerBlockMatching(сhoiceListAnswer, choiceList)
         self.edit_open('</body></html>')
 
-    def addMultipleChoiceQuestion(self, name, question_title, question, choiceList, count_multichoice):
-        choiceList = self.CheckChoiceList(choiceList, count_multichoice)
+    def addMultipleChoiceQuestion(self, name, question_title, question, choiceList, count_multichoice, count_true):
+        choiceList = self.CheckChoiceList(choiceList, count_multichoice, count_true)
         with redirect_stdout(self.f):
             self.questionHeader("multichoice", name, question, question_title)
-            xml = Template(' <answer fraction="100"><text>{{choiceList}}</text></answer>')
-            print(str(xml.render(choiceList=choiceList[0])))
-            for item in choiceList[1:]:
-                xml = Template(' <answer fraction="-33.33333" format="html"><text>{{item}}</text></answer>')
-                print(str(xml.render(item=item)))
+            for item in choiceList[:count_true]:
+                xml = Template(' <answer fraction="100"><text>{{item_true}}</text></answer>')
+                print(str(xml.render(item_true=item)))
+            for item in choiceList[count_true:]:
+                xml = Template(' <answer fraction="-33.33333" format="html"><text>{{item_false}}</text></answer>')
+                print(str(xml.render(item_false=item)))
             print('<answernumbering>none</answernumbering>\n<shuffleanswers>1</shuffleanswers>\n<single>true</single>\n</question>')
 
         self.addHtmlHeader()
         self.addHtmlQuestionBlock(name, question, question_title, 'multichoice')
-        self.addHtmlAnswerBlockMultichoice(choiceList)
+        self.addHtmlAnswerBlockMultichoice(choiceList, count_true)
         self.edit_open('</body></html>')
 
     def questionHeader(self, type, name, question, question_title):
@@ -143,10 +138,10 @@ class Quiz: #Запись в html и xml
         html += '</div></div></div></div></div>'
         self.edit_open(html)
 
-    def addHtmlAnswerBlockMultichoice(self, choiceList):
+    def addHtmlAnswerBlockMultichoice(self, choiceList, count_true):
         html = '<br /><div class="ablock"><div class="answer">'
         for item in choiceList:
-            html += f'<div class="r0"><input type="radio" {"checked" if item==choiceList[0] else ""}/>'
+            html += f'<div class="r0"><input type="radio" {"checked" if item in choiceList[:count_true] else ""}/>'
             html_out = Template('<label>{{item}}</label></div>')
             html += str(html_out.render(item=item))
         html += '</div></div></div></div></div>'
@@ -169,3 +164,9 @@ class Quiz: #Запись в html и xml
         with redirect_stdout(self.f):
             print('</quiz>')
         self.f.close()
+
+    def delete_file(self):
+        if os.path.getsize(self.htmlFilename) == 0:
+            os.remove(os.path.join(self.htmlFilename))
+        if os.path.getsize(self.filename) <= 37:
+            os.remove(os.path.join(self.filename))

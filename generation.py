@@ -5,6 +5,7 @@ import subprocess
 import ast
 import ctypes
 import numpy
+import re
 
 path = os.getcwd()
 path_compile = path+'/quest.cpp'
@@ -26,8 +27,8 @@ class Generation(): #Генерация вопроса
         path_code = path+'/cods'
         code = random.choice(list(filter(lambda x: x.endswith('.txt'), os.listdir(path_code))))
         type_quiz = random.randint(1,5) #логические, синтаксические, при результате выдать ответ, стандарт вопрос
-        type_quiz = 5
-        #code = 'code_2.txt'
+        #type_quiz = 4
+        #code = 'code_6.txt'
 
         if type_quiz == 3 and not code.replace(".txt","") in generator['type_quiz_exception']: #самостоятельно определять и 3
             type_quiz = 4
@@ -95,7 +96,6 @@ class Generation(): #Генерация вопроса
             elif type_quiz == 5:
                 chance = random.randint(1,2)
                 answers = self.answer_true(os_out)
-                print(answers)
                 if type(answers) == list and len(answers) > 1:
                     ans_find = random.choice(answers)
                     ans_find = ans_find[1]
@@ -103,7 +103,6 @@ class Generation(): #Генерация вопроса
                     ans_find = answers
                 else:
                     ans_find = answers[0][1]
-                print(ans_find)
                 if chance == 1:
                     ans = "yes"
                     ans_out = ans_find

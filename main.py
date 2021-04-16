@@ -88,7 +88,7 @@ class Main(tk.Tk): #Оконное приложение
             index.append(num)
         return index
 
-    def create_input(self, i, j, count):
+    def create_input(self, i, j, count, count_true):
         index = self.list_index(count)
         self.answer_check.append([])
         self.input_answer_checkbox.append([])
@@ -101,7 +101,7 @@ class Main(tk.Tk): #Оконное приложение
         self.input_first_answer_matching.append([])
         self.answer_second_matching_check.append([])
         self.input_second_answer_matching.append([])
-        self.button_answer[i].bind('<Button-1>', partial(self.check_answer_box, i, count))
+        self.button_answer[i].bind('<Button-1>', partial(self.check_answer_box, i, count, count_true))
         self.button_answer[i].grid(row=j+1, column=count+1, padx=1, pady=1)
 
     def create_quest(self):
@@ -110,25 +110,21 @@ class Main(tk.Tk): #Оконное приложение
         self.frame_out.destroy()
         self.geometry('880x660')
         self.resizable(width=True, height=True)
-
         self.canvas = tk.Canvas(self)
         self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
         self.canvas.place(relx=0, rely=0, relheight=1, relwidth=1)
-
         self.frame_in = tk.Frame(self.canvas)
         self.frame_in.bind('<Configure>', self.on_configure)
         self.canvas.create_window(0, 0, window=self.frame_in)
-
         self.scrolly = tk.Scrollbar(self, command=self.canvas.yview)
         self.scrolly.place(relx=1, rely=0, relheight=1, anchor='ne')
         self.canvas.configure(yscrollcommand=self.scrolly.set)
-
         self.Quiz = Quiz(path+'/output/quiz'+str(self.num_test)+'.xml')
         q = Generation()
         j = 0
+
         for i in range(self.count_number):
             quiz = q.question_gen()
-
             while quiz[2] == "[ERROR]":
                 if quiz[2] != "[ERROR]":
                     break
@@ -139,7 +135,6 @@ class Main(tk.Tk): #Оконное приложение
             self.quest.append(quiz[0])
             self.answer.append(quiz[1])
             self.quest_title.append(quiz[2])
-
             self.frame.append(tk.Frame(self.frame_in, borderwidth=2, relief="groove"))
             self.frame[i].pack(fill=BOTH)
             self.question.append(tk.Label(self.frame[i], text=self.quest[i], font=10, justify=LEFT))
@@ -151,7 +146,9 @@ class Main(tk.Tk): #Оконное приложение
             if type(self.answer[i]) == list:
                 count_matching = len(self.answer[i])
                 choice = random.randint(1,2)
-                choice = 1
+                for k in range(count_matching):
+                    if Generation.is_float(str(self.answer[i][k][1])):
+                        self.answer[i][k][1] = round(float(self.answer[i][k][1]),fractional_number)
                 if choice == 1:
                     self.answer_first_matching_check.append([])
                     self.input_first_answer_matching.append([])
@@ -160,8 +157,6 @@ class Main(tk.Tk): #Оконное приложение
                     list_answers = []
                     list_choice = []
                     for k in range(count_matching):
-                        if Generation.is_float(self.answer[i][k][1]):
-                                self.answer[i][k][1] = str(round(float(self.answer[i][k][1]),fractional_number))
                         list_answers.append(self.answer[i][k][1])
                         list_choice.append(self.answer[i][k][0])
                         self.answer_first_matching_check[i].append(self.answer[i][k][1])
@@ -183,23 +178,51 @@ class Main(tk.Tk): #Оконное приложение
                     self.button_answer[i].bind('<Button-1>', partial(self.check_matching, i, count_matching))
                     self.button_answer[i].grid(row=j+1, column=column+1, padx=1, pady=1)
                     output = 4
-                else:
-                    for k in range(count_matching):
-                        if Generation.is_float(self.answer[i][k][1]):
-                            self.answer[i][k][1] = round(float(self.answer[i]),fractional_number)
-                    self.create_input(i,j,count_matching*2)
-                    output = 2
+                elif choice == 2 or quiz[3] == 1 or quiz[3] == 2:
+                    if Generation.is_number(str(self.answer[i][0][1])): #число ответ
+                        list_numbers = []
+                        fractional_number_answer = list(generator['fractional_number_answer'])
+                        number_answer = list(generator['number_answer'])
+                        self.correct_answer.append([])
+                        for k in range(count_matching):
+                            self.correct_answer[i].append(str(self.answer[i][k][1])) #Правильный ответ
+                        for k in range(count_matching):
+                            if Generation.is_float(str(self.answer[i][k][1])):
+                                number = self.answer[i][k][1]
+                                list_numbers.append(list(numpy.arange(number-fractional_number_answer[0], number+fractional_number_answer[1], 1 / (10 ** fractional_number))))
+                                list_numbers[k] = [round(v,fractional_number) for v in list_numbers[k]]
+                            else:                               
+                                number = int(self.answer[i][k][1])
+                                list_numbers.append(list(range(number-number_answer[0], number+number_answer[1])))
+                            random.shuffle(list_numbers)                           
+                            self.correct_answer[i].append(str(list_numbers[k][0]))
+                        self.create_input(i,j,count_matching*2, count_matching)
+                    elif self.answer[i] in sign_for_action:
+                        random.shuffle(sign_for_action)
+                        self.correct_answer.append([])
+                        for k in range(count_matching):
+                            self.correct_answer[i].append(self.answer[i]) #Правильный ответ
+                        k = 0
+                        for num in sign_for_action:
+                            if num != self.answer[i]:
+                                self.correct_answer[i].append(str(num))
+                                k += 1
+                                if k == (count_matching*2)-1:
+                                    break
+                        self.create_input(i,j,count_matching*2)
+                    output = 5
                 print(self.answer[i])     
             else:
                 if Generation.is_number(self.answer[i]) == False:
                     choice = 1 # вводный ответ по умолчанию
                 else:
                     choice = random.randint(2,3) #множественная выборка или вводный ответ
+                if Generation.is_float(str(self.answer[i])):
+                    self.answer[i] = str(round(float(self.answer[i]),fractional_number))
 
                 if Generation.is_number(self.answer[i]) and choice == 3: #число ответ
                     if Generation.is_float(self.answer[i]):
                         fractional_number_answer = list(generator['fractional_number_answer'])
-                        self.answer[i] = round(float(self.answer[i]),fractional_number)
                         number = self.answer[i]
                         list_numbers = list(numpy.arange(number-fractional_number_answer[0], number+fractional_number_answer[1], 1 / (10 ** fractional_number)))
                         list_numbers = [round(v,fractional_number) for v in list_numbers]
@@ -217,7 +240,7 @@ class Main(tk.Tk): #Оконное приложение
                             k += 1
                             if k == count_multichoice-1:
                                 break
-                    self.create_input(i,j,count_multichoice)
+                    self.create_input(i,j,count_multichoice,1)
                     output = 2
                 elif self.answer[i] in sign_for_action and choice == 3: #знаковый ответ
                     random.shuffle(sign_for_action)
@@ -230,7 +253,7 @@ class Main(tk.Tk): #Оконное приложение
                             k += 1
                             if k == count_multichoice-1:
                                 break
-                    self.create_input(i,j,count_multichoice)
+                    self.create_input(i,j,count_multichoice,1)
                     output = 2
                 elif quiz[3] == 5:
                     self.correct_answer.append([])
@@ -240,11 +263,9 @@ class Main(tk.Tk): #Оконное приложение
                     else:
                         self.correct_answer[i].append("Нет")
                         self.correct_answer[i].append("Да")
-                    self.create_input(i,j,2)
+                    self.create_input(i,j,2,1)
                     output = 3
                 elif choice == 1 or (Generation.is_number(self.answer[i]) and choice == 2) or (self.answer[i] in sign_for_action and choice == 2): #Вводный ответ
-                    if Generation.is_float(self.answer[i]):
-                        self.answer[i] = str(round(float(self.answer[i]),fractional_number))
                     self.input_answer_checkbox.append([]) #заглушки
                     self.answer_check.append([])
                     self.correct_answer.append([])
@@ -258,18 +279,21 @@ class Main(tk.Tk): #Оконное приложение
                     self.button_answer[i].grid(row=j+1, column=2, padx=1, pady=1)
                     output = 1
                 print("Ответ: "+str(self.answer[i]))
-                    
+            j += 2
+            q.delete_file()   
+        
             if output == 1:
                 self.Quiz.addShortAnswerQuestion("Вопрос №"+str(i+1), self.quest_title[i], self.quest[i], str(self.answer[i]))
             elif output == 2:
-                self.Quiz.addMultipleChoiceQuestion("Вопрос №"+str(i+1), self.quest_title[i], self.quest[i], self.correct_answer[i], count_multichoice)
+                self.Quiz.addMultipleChoiceQuestion("Вопрос №"+str(i+1), self.quest_title[i], self.quest[i], self.correct_answer[i], count_multichoice, 1)
             elif output == 3:
                 self.Quiz.addTrueFalseQuestion("Вопрос №"+str(i+1), self.quest_title[i], self.quest[i], self.correct_answer[i])
             elif output == 4:
-                self.Quiz.addMatchingQuestion("Вопрос №"+str(i+1), self.quest_title[i], self.quest[i], list_answers_out, list_choice)               
-            j += 2
-            q.delete_file()
-            self.Quiz.close()
+                self.Quiz.addMatchingQuestion("Вопрос №"+str(i+1), self.quest_title[i], self.quest[i], list_answers_out, list_choice)
+            else:
+                self.Quiz.addMultipleChoiceQuestion("Вопрос №"+str(i+1), self.quest_title[i], self.quest[i], self.correct_answer[i], count_matching*2, count_matching)
+        self.Quiz.close()
+        self.Quiz.delete_file()
 
     def check_matching(self, i, count_matching, event):
         self.button_answer[i].destroy()
@@ -294,10 +318,16 @@ class Main(tk.Tk): #Оконное приложение
             self.question_title[i].config(bg="tomato")
         self.result()
 
-    def check_answer_box(self, i, count_multi, event):
+    def check_answer_box(self, i, count_multi, count_true, event):
         self.button_answer[i].destroy()
         self.count_number -= 1
-        if self.answer_check[i][0].get() == True: #может быть несколько правильных ответов - сделать
+        check = 0
+        for k in range(count_true):
+            if self.answer_check[i][k].get() == True:
+                check = 1
+            else:
+                check = 0
+        if check == 1:
             self.score += 1
             for k in range(count_multi):
                 self.input_answer_checkbox[i][k].config(state="disabled",bg="lightgreen")
