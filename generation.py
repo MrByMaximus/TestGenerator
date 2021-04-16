@@ -26,8 +26,8 @@ class Generation(): #Генерация вопроса
         path_code = path+'/cods'
         code = random.choice(list(filter(lambda x: x.endswith('.txt'), os.listdir(path_code))))
         type_quiz = random.randint(1,5) #логические, синтаксические, при результате выдать ответ, стандарт вопрос
-        #type_quiz = 4
-        #code = 'code_6.txt'
+        type_quiz = 5
+        #code = 'code_2.txt'
 
         if type_quiz == 3 and not code.replace(".txt","") in generator['type_quiz_exception']: #самостоятельно определять и 3
             type_quiz = 4
@@ -35,6 +35,7 @@ class Generation(): #Генерация вопроса
         file = open(path_code+"/"+code,'r')
         quest = file.read()
         quest_out = quest
+        file.close()
 
         if type_quiz == 1 or type_quiz == 2:
             quest = self.read_code(quest)
@@ -55,55 +56,63 @@ class Generation(): #Генерация вопроса
             self.write_code_output(quest_out[1])
             os_out = self.write_code(quest_out[0])
 
-        file.close()
         with open(self.number_lines(path_output), "r") as f:
-            text = f.read()
-
-        #check = subprocess.call(os_out, shell=True, stdout=os.open(os.devnull, os.O_WRONLY), stderr=subprocess.STDOUT)
-        if type_quiz == 3 and quest_out[3] == 0:
-            ans_out = self.answer_true(os_out)[0][1]
-            if Generation.is_float(ans_out):
-                ans_out = round(float(ans_out),fractional_number)
-            quiz = "При каком значении "+quest_out[4]+" программа выдаст результат: "+str(ans_out)
-            ans = quest_out[2]
-        elif type_quiz == 4 or quest_out[3] == 1: #если не найдется ошибки или не выполниться 3 тип вопроса, то сгенерируется стандартный вопрос
-            answers = self.answer_true(os_out)
-            if len(answers) == 1:
-                quiz = "Введите ответ программы"+self.add_quest+" "+str(answers[0][0])+": "
-                ans = answers[0][1]
-            elif type(answers) != list:
-                quiz = "Введите ответ программы"+self.add_quest+": "
-                ans = answers
-            else:
-                quiz = "Сопоставьте решения: "
-                ans = answers
-        elif quest_out[3] == 0 and (type_quiz == 1 or type_quiz == 2):
-            quiz = "Введите строчку кода, где допущена ошибка: "
-            if quest_out[2] != '':
-                ans = quest_out[2]
-            else:
-                answers = self.answer_false(os_out)
-                if len(answers) == 1:
-                    ans = answers[0][1]
-                else:
-                    quiz = "Сопоставьте ошибки со строчками кода: "
+                text = f.read()
+        
+        check = subprocess.call(os_out, shell=True, stdout=os.open(os.devnull, os.O_WRONLY), stderr=subprocess.STDOUT)
+        if check == 1 and type_quiz != 1 and type_quiz != 2:
+            ans = code
+            quiz = "[ERROR]"
+        else:        
+            if type_quiz == 3 and quest_out[3] == 0:
+                ans_out = self.answer_true(os_out)[0][1]
+                if Generation.is_float(ans_out):
+                    ans_out = round(float(ans_out),fractional_number)
+                quiz = "При каком значении "+quest_out[4]+" программа выдаст результат: "+str(ans_out)
+                ans = str(quest_out[2])
+            elif type_quiz == 4 or quest_out[3] == 1: #если не найдется ошибки или не выполниться 3 тип вопроса, то сгенерируется стандартный вопрос
+                answers = self.answer_true(os_out)
+                if type(answers) == list and len(answers) == 1:
+                    quiz = "Введите ответ программы"+self.add_quest+" "+str(answers[0][0])+": "
+                    ans = str(answers[0][1])
+                elif type(answers) != list:
+                    quiz = "Введите ответ программы"+self.add_quest+": "
                     ans = answers
-        elif type_quiz == 5:
-            chance = random.randint(1,2)
-            answers = self.answer_true(os_out)
-            if len(answers) > 1:
-                ans_find = random.choice(answers)
-            else:
-                ans_find = answers[0][1]
-            if chance == 1:
-                ans = "yes"
-                ans_out = ans_find[0][1]
-            else:
-                ans = "no"
-                ans_out = self.generated_fake_answer(ans_find[0][1])
-            if Generation.is_float(ans_out):
-                ans_out = round(float(ans_out),fractional_number)
-            quiz = "При компиляции программы результат будет: "+str(ans_out)
+                else:
+                    quiz = "Сопоставьте решения: "
+                    ans = answers
+            elif quest_out[3] == 0 and (type_quiz == 1 or type_quiz == 2):
+                quiz = "Введите строчку кода, где допущена ошибка: "
+                if quest_out[2] != '':
+                    ans = str(quest_out[2])
+                else:
+                    answers = self.answer_false(os_out)
+                    if len(answers) == 1:
+                        ans = str(answers[0][1])
+                    else:
+                        quiz = "Сопоставьте ошибки со строчками кода: "
+                        ans = answers
+            elif type_quiz == 5:
+                chance = random.randint(1,2)
+                answers = self.answer_true(os_out)
+                print(answers)
+                if type(answers) == list and len(answers) > 1:
+                    ans_find = random.choice(answers)
+                    ans_find = ans_find[1]
+                elif type(answers) != list:
+                    ans_find = answers
+                else:
+                    ans_find = answers[0][1]
+                print(ans_find)
+                if chance == 1:
+                    ans = "yes"
+                    ans_out = ans_find
+                else:
+                    ans = "no"
+                    ans_out = self.generated_fake_answer(ans_find)
+                if Generation.is_float(ans_out):
+                    ans_out = round(float(ans_out),fractional_number)
+                quiz = "При компиляции программы результат будет: "+str(ans_out)
         
         return [text,ans,quiz,type_quiz]
 
@@ -241,19 +250,19 @@ class Generation(): #Генерация вопроса
                     quest_out = quest_out.replace("{number"+str(i)+"}", number[i])
             out2 = "[action]"
         elif count_dictionary != 0:
-            dictionary = []
+            dictionary_list = []
             for i in range(count_dictionary):
                 index = quest.find("{dictionary}")
                 quest = quest[:index+len("{dictionary}")-1] + str(i) + quest[index+len("{dictionary}")-1:]
-                dictionary.append(random.choice(dictionary))
-                quest = quest.replace("{dictionary"+str(i)+"}", dictionary[i])
+                dictionary_list.append(random.choice(dictionary))
+                quest = quest.replace("{dictionary"+str(i)+"}", dictionary_list[i])
             quest_out = quest
             if quest.find("{letter}") != -1:
-                dictionary2 = dictionary[random.randint(0, count_dictionary-1)]
-                out = random.choice(list(dictionary2))
+                dictionary_list_second = dictionary_list[random.randint(0, count_dictionary-1)]
+                out = random.choice(list(dictionary_list_second))
                 quest = quest.replace("{letter}",out)
                 count_letter = 0
-                for i in dictionary2: 
+                for i in dictionary_list_second: 
                     if i == out: 
                         count_letter += 1
                 if count_letter == 1:
@@ -353,8 +362,8 @@ class Generation(): #Генерация вопроса
             error_request = self.error_line(quest,"==","=")
             quest_out = error_request[0]
             out = error_request[1]
-        elif quest.find(error_choice) != -1 and choice == 3:
-            quest = self.type_code_error(quest, error_choice)
+        #elif quest.find(error_choice) != -1 and choice == 3:
+            #quest = self.type_code_error(quest, error_choice)
         else:
             not_error = 1
 

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+        <title>Тест по программированию на C++</title>
+        <style>
+        body
+        {
+        margin-top: 20px;
+        margin-right: 20px;
+        margin-bottom: 20px;
+        margin-left: 20px;
+        }
+        h2
+        {
+        margin-left: 120px;
+        }
+        </style>
+        </head>
+        <body><h2>Вопрос №1</h2><div class="que multichoice deferredfeedback "><div class="content"><div class="formulation clearfix"><div class="qtext"><pre>1      #include &lt;iostream&gt;
+2      void func(int a, int b, int c) {
+3          int result = 0;
+4          while (result &lt; b) {
+5      	result += a;
+6          }
+7          std::cout &lt;&lt; &#34;result: &#34; &lt;&lt; result &lt;&lt; &#34;\n&#34;;
+8      }
+9      int main() {
+10          int a = 88;
+11          int b = 73;
+12          int c = a * b;
+13          func(a,b,c);
+14          return 0;
+15      }</pre><br /><br />Введите ответ программы result: </div><br /><div class="ablock"><div class="answer"><div class="r0"><input type="radio" {"checked" if item==choiceList[0] else ""}/><label>88</label></div><div class="r0"><input type="radio" {"checked" if item==choiceList[0] else ""}/><label>92</label></div><div class="r0"><input type="radio" {"checked" if item==choiceList[0] else ""}/><label>89</label></div><div class="r0"><input type="radio" {"checked" if item==choiceList[0] else ""}/><label>83</label></div></div></div></div></div></div></body></html><body><h2>Вопрос №2</h2><div class="que shortanswer deferredfeedback "><div class="content"><div class="formulation clearfix"><div class="qtext"><pre>1      #include &lt;iostream&gt;
+2      int main() {
+3          int a = 31;
+4          int b = -5;
+5          if (a == b)
+6      	std::cout &lt;&lt; &#34;The numbers are equal&#34; &lt;&lt; &#34;\n&#34;;
+7          else
+8      	std::cout &lt;&lt; &#34;The numbers are not equal&#34; &lt;&lt; &#34;\n&#34;;
+9          return 0;
+10      }</pre><br /><br />Введите ответ программы: </div><br /><div class="ablock"><span class="answer"><input type="text" size="80" class="form-control d-inline" value="The numbers are not equal"/></span></div></div></div></div></body></html><body><h2>Вопрос №3</h2><div class="que matching deferredfeedback "><div class="content"><div class="formulation clearfix"><div class="qtext"><pre>1      #include &lt;iostream&gt;
+2      #include &lt;cmath&gt;
+3      int main() {
+4          double a = 35;
+5          double b = 27;
+6          double c = 0;
+7          double x1, x2;
+8          if ((b*b - 4*a*c) &gt;= 0) {
+9              x1 = (-1*b + sqrt(b*b - 4*a*c)) / (2 * a);
+10              std::cout &lt;&lt; &#34;x1: &#34; &lt;&lt; x1 &lt;&lt; &#34;\n&#34;;
+11              x2 = (-1*b - sqrt(b*b - 4*a*c)) / (2 * a);
+12              std::cout &lt;&lt; &#34;x2: &#34; &lt;&lt; x2 &lt;&lt; &#34;\n&#34;;
+13          }
+14          else {
+15              std::cout &lt;&lt; &#34;The discriminant is less than 0&#34; &lt;&lt; &#34;\n&#34;;
+16          }
+17          return 0;
+18      }</pre><br /><br />Сопоставьте решения: </div><br /><div class="ablock"><div class="answer"><label>x1</label><form action="formdata" method="post" name="form1"><select name="list1"><option>0</option><option>-0.77</option></select></form><label>x2</label><form action="formdata" method="post" name="form1"><select name="list1"><option>0</option><option>-0.77</option></select></form></div></div></div></div></div></body></html>

@@ -10,7 +10,7 @@ class Quiz: #Запись в html и xml
         if not htmlFilename:
             htmlFilename = os.path.splitext(filename)[0]+".html"
         self.htmlFilename = str(htmlFilename)
-        self.f = open(filename, 'w', encoding="utf-8")
+        self.f = open(self.filename, 'w', encoding="utf-8")
         with redirect_stdout(self.f):
             print('<?xml version="1.0" ?><quiz>')
         file = open(htmlFilename, 'w', encoding="utf-8")
@@ -146,17 +146,19 @@ class Quiz: #Запись в html и xml
     def addHtmlAnswerBlockMultichoice(self, choiceList):
         html = '<br /><div class="ablock"><div class="answer">'
         for item in choiceList:
-            html_out = Template('<div class="r0"><input type="radio" {"checked" if item==choiceList[0] else ""}/><label>{{item}}</label></div>')
+            html += f'<div class="r0"><input type="radio" {"checked" if item==choiceList[0] else ""}/>'
+            html_out = Template('<label>{{item}}</label></div>')
             html += str(html_out.render(item=item))
         html += '</div></div></div></div></div>'
         self.edit_open(html)
 
     def addHtmlAnswerBlockShortAnswer(self, answer):
-        html = Template('<br /><div class="ablock"><span class="answer"><input type="text" size="80" class="form-control d-inline" /><p>Правильный ответ: {{answer}} </span></div></div></div></div>')
+        html = Template('<br /><div class="ablock"><span class="answer"><input type="text" size="80" class="form-control d-inline" value="{{answer}}"/></span></div></div></div></div>')
         self.edit_open(html.render(answer=answer))
 
     def preview(self):
-        webbrowser.open_new_tab(self.htmlFilename)
+        if os.path.getsize(self.htmlFilename) > 0:
+            webbrowser.open_new_tab(self.htmlFilename)
 
     def edit_open(self, html):
         f = open(self.htmlFilename, 'a', encoding="utf-8")

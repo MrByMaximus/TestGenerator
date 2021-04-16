@@ -128,6 +128,14 @@ class Main(tk.Tk): #Оконное приложение
         j = 0
         for i in range(self.count_number):
             quiz = q.question_gen()
+
+            while quiz[2] == "[ERROR]":
+                if quiz[2] != "[ERROR]":
+                    break
+                mb.showerror("Ошибка", "Скомпилированный код из файла: {code} содержит ошибки".format(code = quiz[1]))
+                q.delete_file()
+                quiz = q.question_gen()
+
             self.quest.append(quiz[0])
             self.answer.append(quiz[1])
             self.quest_title.append(quiz[2])
@@ -261,7 +269,7 @@ class Main(tk.Tk): #Оконное приложение
                 self.Quiz.addMatchingQuestion("Вопрос №"+str(i+1), self.quest_title[i], self.quest[i], list_answers_out, list_choice)               
             j += 2
             q.delete_file()
-        self.Quiz.close()
+            self.Quiz.close()
 
     def check_matching(self, i, count_matching, event):
         self.button_answer[i].destroy()
@@ -322,10 +330,10 @@ class Main(tk.Tk): #Оконное приложение
         
     def result(self):
         if self.count_number == 0:
-            if mb.showinfo("Результат", "Количество правильных ответов: {score} из {number}".format(score = self.score, number = self.score_count)):
-                self.Quiz.preview()
-                self.delete_elements()
-                self.generator_test()
+            mb.showinfo("Результат", "Количество правильных ответов: {score} из {number}".format(score = self.score, number = self.score_count))
+            self.Quiz.preview()
+            self.delete_elements()
+            self.generator_test()
 
 if __name__ == "__main__":
     app = Main()
