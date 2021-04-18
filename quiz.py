@@ -1,17 +1,17 @@
 import webbrowser, sys, os
 from contextlib import redirect_stdout
 from jinja2 import Template
-from generation import generator
 import random
 
 class Quiz: #Запись в html и xml
     def __init__(self, filename, htmlFilename=""):
+        super().__init__()
         self.filename = filename
         if not htmlFilename:
             htmlFilename = os.path.splitext(filename)[0]+".html"
         self.htmlFilename = str(htmlFilename)
-        self.f = open(self.filename, 'w', encoding="utf-8")
-        with redirect_stdout(self.f):
+        self.xmlFilename = open(filename, 'w', encoding="utf-8")
+        with redirect_stdout(self.xmlFilename):
             print('<?xml version="1.0" ?><quiz>')
         file = open(htmlFilename, 'w', encoding="utf-8")
         file.close()
@@ -28,7 +28,7 @@ class Quiz: #Запись в html и xml
         return choiceList
 
     def addShortAnswerQuestion(self, name, question_title, question, answer):
-        with redirect_stdout(self.f):
+        with redirect_stdout(self.xmlFilename):
             self.questionHeader("shortanswer", name, question, question_title)
             xml = Template('<usecase>0</usecase>\n<answer fraction="100" format="moodle_auto_format"><text>{{answer}}</text></answer>\n</question>')
             print(str(xml.render(answer=answer)))
@@ -40,7 +40,7 @@ class Quiz: #Запись в html и xml
     
     def addTrueFalseQuestion(self, name, question_title, question, choiceList):
         #choiceList = self.CheckChoiceList(choiceList, 2, 1)        
-        with redirect_stdout(self.f):
+        with redirect_stdout(self.xmlFilename):
             self.questionHeader("truefalse", name, question, question_title)
             xml = Template(' <answer fraction="100"><text>{{item}}</text></answer>')
             print(str(xml.render(item=choiceList[0])))
@@ -55,7 +55,7 @@ class Quiz: #Запись в html и xml
 
     def addMatchingQuestion(self, name, question_title, question, сhoiceListAnswer, choiceList):
         #random.shuffle(сhoiceListAnswer)
-        with redirect_stdout(self.f):
+        with redirect_stdout(self.xmlFilename):
             self.questionHeader("matching", name, question, question_title)
             for (item, item_answer) in zip(choiceList, сhoiceListAnswer):
                 xml = Template(' <subquestion><text>{{item}}</text><answer><text>{{item_answer}}</text></answer></subquestion>')
@@ -69,7 +69,7 @@ class Quiz: #Запись в html и xml
 
     def addMultipleChoiceQuestion(self, name, question_title, question, choiceList, count_multichoice, count_true):
         choiceList = self.CheckChoiceList(choiceList, count_multichoice, count_true)
-        with redirect_stdout(self.f):
+        with redirect_stdout(self.xmlFilename):
             self.questionHeader("multichoice", name, question, question_title)
             for item in choiceList[:count_true]:
                 xml = Template(' <answer fraction="100"><text>{{item_true}}</text></answer>')
@@ -85,7 +85,7 @@ class Quiz: #Запись в html и xml
         self.edit_open('</body></html>')
 
     def questionHeader(self, type, name, question, question_title):
-        with redirect_stdout(self.f):
+        with redirect_stdout(self.xmlFilename):
             xml = Template('<question type="{{type}}">\n <name>\n  <text>{{name}}</text>\n </name>\n <questiontext format="html">\n  <text><![CDATA[<pre>')
             print(str(xml.render(type=type,name=name)))
             xml = Template('{{question | e}}')
@@ -161,9 +161,9 @@ class Quiz: #Запись в html и xml
         f.close()
 
     def close(self):
-        with redirect_stdout(self.f):
+        with redirect_stdout(self.xmlFilename):
             print('</quiz>')
-        self.f.close()
+        self.xmlFilename.close()
 
     def delete_file(self):
         if os.path.getsize(self.htmlFilename) == 0:

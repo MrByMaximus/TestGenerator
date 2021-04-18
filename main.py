@@ -4,7 +4,6 @@ import tkinter as tk
 import sys, os
 import random
 import numpy
-import fileinput
 from functools import partial
 from quiz import Quiz
 from generation import Generation
@@ -96,7 +95,7 @@ class Main(tk.Tk): #Оконное приложение
             self.answer_check[i].append(IntVar())
             self.input_answer_checkbox[i].append(tk.Checkbutton(self.frame[i], text=self.correct_answer[i][k], variable=self.answer_check[i][k], offvalue=0))
             self.input_answer_checkbox[i][k].grid(row=j+1, column=index[k], padx=1, pady=1)
-        self.input_answer.append(tk.Entry(self.frame[i], width=40, font=40))
+        self.input_answer.append(tk.Entry(self.frame[i]))
         self.answer_first_matching_check.append([]) #заглушки
         self.input_first_answer_matching.append([])
         self.answer_second_matching_check.append([])
@@ -120,17 +119,15 @@ class Main(tk.Tk): #Оконное приложение
         self.scrolly.place(relx=1, rely=0, relheight=1, anchor='ne')
         self.canvas.configure(yscrollcommand=self.scrolly.set)
         self.Quiz = Quiz(path+'/output/quiz'+str(self.num_test)+'.xml')
-        q = Generation()
+        generate = Generation()
         j = 0
 
         for i in range(self.count_number):
-            quiz = q.question_gen()
+            quiz = generate.question_gen()
             while quiz[2] == "[ERROR]":
-                if quiz[2] != "[ERROR]":
-                    break
                 mb.showerror("Ошибка", "Скомпилированный код из файла: {code} содержит ошибки".format(code = quiz[1]))
                 q.delete_file()
-                quiz = q.question_gen()
+                quiz = generate.question_gen()
 
             self.quest.append(quiz[0])
             self.answer.append(quiz[1])
@@ -174,8 +171,9 @@ class Main(tk.Tk): #Оконное приложение
                     self.input_answer_checkbox.append([]) #заглушки
                     self.answer_check.append([])
                     self.correct_answer.append([])
-                    self.input_answer.append(tk.Entry(self.frame[i], width=40, font=40))
-                    self.button_answer[i].bind('<Button-1>', partial(self.check_matching, i, count_matching))
+                    self.input_answer.append(tk.Entry(self.frame[i]))
+                    check_matching = 0
+                    self.button_answer[i].bind('<Button-1>', partial(self.check_matching, i, count_matching, check_matching))
                     self.button_answer[i].grid(row=j+1, column=column+1, padx=1, pady=1)
                     output = 4
                 elif choice == 2 or quiz[3] == 1 or quiz[3] == 2:
@@ -219,12 +217,11 @@ class Main(tk.Tk): #Оконное приложение
                     choice = random.randint(2,3) #множественная выборка или вводный ответ
                 if Generation.is_float(str(self.answer[i])):
                     self.answer[i] = str(round(float(self.answer[i]),fractional_number))
-
-                if Generation.is_number(self.answer[i]) and choice == 3: #число ответ
-                    if Generation.is_float(self.answer[i]):
+                if Generation.is_number(str(self.answer[i])) and choice == 3: #число ответ
+                    if Generation.is_float(str(self.answer[i])):
                         fractional_number_answer = list(generator['fractional_number_answer'])
                         number = self.answer[i]
-                        list_numbers = list(numpy.arange(number-fractional_number_answer[0], number+fractional_number_answer[1], 1 / (10 ** fractional_number)))
+                        list_numbers = list(numpy.arange(number-fractional_number_answer[0], number+fractional_number_answer[1], 1 / (10 ** fractional_number))) #использовать random а не numpy
                         list_numbers = [round(v,fractional_number) for v in list_numbers]
                     else:
                         number_answer = list(generator['number_answer'])
@@ -280,7 +277,7 @@ class Main(tk.Tk): #Оконное приложение
                     output = 1
                 print("Ответ: "+str(self.answer[i]))
             j += 2
-            q.delete_file()   
+            generate.delete_file()   
         
             if output == 1:
                 self.Quiz.addShortAnswerQuestion("Вопрос №"+str(i+1), self.quest_title[i], self.quest[i], str(self.answer[i]))
@@ -295,7 +292,7 @@ class Main(tk.Tk): #Оконное приложение
         self.Quiz.close()
         self.Quiz.delete_file()
 
-    def check_matching(self, i, count_matching, event):
+    def check_matching(self, i, count_matching, check_matching, event):
         self.button_answer[i].destroy()
         self.count_number -= 1
         right_result = 0
@@ -346,8 +343,8 @@ class Main(tk.Tk): #Оконное приложение
         self.button_answer[i].destroy()
         self.count_number -= 1
         if self.input_answer[i].get() == str(self.answer[i]):
-            self.score += 1
             self.input_answer[i].config(state="readonly",bg="lightgreen")
+            self.score += 1
             self.frame[i].config(bg="lightgreen")
             self.question[i].config(bg="lightgreen")
             self.question_title[i].config(bg="lightgreen")
@@ -355,7 +352,8 @@ class Main(tk.Tk): #Оконное приложение
             self.input_answer[i].config(state="readonly",bg="tomato")
             self.frame[i].config(bg="tomato")
             self.question[i].config(bg="tomato")
-            self.question_title[i].config(bg="tomato")        
+            self.question_title[i].config(bg="tomato")
+
         self.result()
         
     def result(self):

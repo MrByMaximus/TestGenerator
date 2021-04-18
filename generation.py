@@ -26,11 +26,11 @@ class Generation(): #Генерация вопроса
     def question_gen(self):
         path_code = path+'/cods'
         code = random.choice(list(filter(lambda x: x.endswith('.txt'), os.listdir(path_code))))
-        type_quiz = random.randint(1,5) #логические, синтаксические, при результате выдать ответ, стандарт вопрос
-        #type_quiz = 4
-        #code = 'code_6.txt'
+        type_quiz = random.randint(1,5) #логические, синтаксические, при результате выдать ответ, стандарт вопрос, да/нет
+        #type_quiz = 2
+        #code = 'code_2.txt'
 
-        if type_quiz == 3 and not code.replace(".txt","") in generator['type_quiz_exception']: #самостоятельно определять и 3
+        if type_quiz == 3 and not code.replace(".txt","") in generator['type_quiz_exception']: #самостоятельно определять
             type_quiz = 4
 
         file = open(path_code+"/"+code,'r')
@@ -58,11 +58,11 @@ class Generation(): #Генерация вопроса
             os_out = self.write_code(quest_out[0])
 
         with open(self.number_lines(path_output), "r") as f:
-                text = f.read()
+                code_out = f.read()
         
         check = subprocess.call(os_out, shell=True, stdout=os.open(os.devnull, os.O_WRONLY), stderr=subprocess.STDOUT)
         if check == 1 and type_quiz != 1 and type_quiz != 2:
-            ans = code
+            answer = code
             quiz = "[ERROR]"
         else:        
             if type_quiz == 3 and quest_out[3] == 0:
@@ -70,29 +70,29 @@ class Generation(): #Генерация вопроса
                 if Generation.is_float(ans_out):
                     ans_out = round(float(ans_out),fractional_number)
                 quiz = "При каком значении "+quest_out[4]+" программа выдаст результат: "+str(ans_out)
-                ans = str(quest_out[2])
+                answer = str(quest_out[2])
             elif type_quiz == 4 or quest_out[3] == 1: #если не найдется ошибки или не выполниться 3 тип вопроса, то сгенерируется стандартный вопрос
                 answers = self.answer_true(os_out)
                 if type(answers) == list and len(answers) == 1:
                     quiz = "Введите ответ программы"+self.add_quest+" "+str(answers[0][0])+": "
-                    ans = str(answers[0][1])
+                    answer = str(answers[0][1])
                 elif type(answers) != list:
                     quiz = "Введите ответ программы"+self.add_quest+": "
-                    ans = answers
+                    answer = answers
                 else:
                     quiz = "Сопоставьте решения: "
-                    ans = answers
+                    answer = answers
             elif quest_out[3] == 0 and (type_quiz == 1 or type_quiz == 2):
                 quiz = "Введите строчку кода, где допущена ошибка: "
                 if quest_out[2] != '':
-                    ans = str(quest_out[2])
+                    answer = str(quest_out[2])
                 else:
                     answers = self.answer_false(os_out)
                     if len(answers) == 1:
-                        ans = str(answers[0][1])
+                        answer = str(answers[0][1])
                     else:
                         quiz = "Сопоставьте ошибки со строчками кода: "
-                        ans = answers
+                        answer = answers
             elif type_quiz == 5:
                 chance = random.randint(1,2)
                 answers = self.answer_true(os_out)
@@ -104,16 +104,16 @@ class Generation(): #Генерация вопроса
                 else:
                     ans_find = answers[0][1]
                 if chance == 1:
-                    ans = "yes"
+                    answer = "yes"
                     ans_out = ans_find
                 else:
-                    ans = "no"
+                    answer = "no"
                     ans_out = self.generated_fake_answer(ans_find)
                 if Generation.is_float(ans_out):
                     ans_out = round(float(ans_out),fractional_number)
                 quiz = "При компиляции программы результат будет: "+str(ans_out)
         
-        return [text,ans,quiz,type_quiz]
+        return [code_out,answer,quiz,type_quiz]
 
     def is_float(str):
         try:
@@ -141,7 +141,7 @@ class Generation(): #Генерация вопроса
 
         return count
 
-    def noise(self, quest): # вставлять синтаксис перед строчкой кода
+    def noise(self, quest):
         text = quest.split()
         noise = []
         index_first = 0
@@ -159,8 +159,9 @@ class Generation(): #Генерация вопроса
                     index_last += len("{*}")
                     noise[i].append("{0}")
                     while index < index_last:
-                        index = quest.find("{"+str(count_noise)+"}",index,index_last)
+                        index = quest.find("{^}",index,index_last)
                         if index != -1:
+                            quest = quest[:index] + "{"+str(count_noise)+"}" + quest[index+len("{^}"):] 
                             noise[i].append("{"+str(count_noise)+"}")
                             count_noise += 1
                         else:
@@ -414,6 +415,7 @@ class Generation(): #Генерация вопроса
                     break
         elif (quest.find("int") != -1 or quest.find("float") != -1 or quest.find("double") != -1) and choice == 3: #int, float, double на некоторых не выводит ошибку
             num_check = []
+            error_replace_type = ['char','bool','string']
             if quest.find("float") != -1:
                 type_id = 'float'
             elif quest.find("double") != -1:
@@ -439,7 +441,7 @@ class Generation(): #Генерация вопроса
                         quest = quest.replace('{replace_item}', str(random.choice(generator['generated_number']))+type_id)
                         break
                     else:
-                        quest = quest.replace('{replace_item}', str(random.choice(generator['error_replace'][0])))
+                        quest = quest.replace('{replace_item}', str(random.choice(error_replace_type)))
                         break
                 index += len(type_id)
         elif quest.find("result") != -1 and choice == 4: #вставить const
@@ -507,11 +509,12 @@ class Generation(): #Генерация вопроса
             path_files = path+'/files'
             file = open(path_files+"/in.txt",'w', encoding="utf-8")
             if quest.find("count") != -1:
+                number_of_generated_numbers = generator['number_of_generated_numbers']
                 generated_number = list(generator['generated_number'])
                 numbers = ''
-                for i in range(generator['number_of_generated_numbers']):
+                for i in range(number_of_generated_numbers):
                     numbers += str(random.randint(generated_number[0], generated_number[1]))
-                    if i != generator['number_of_generated_numbers']-1:
+                    if i != number_of_generated_numbers-1:
                         numbers += ' '
                 file.write(numbers)
             elif quest.find("line") != -1:
@@ -522,7 +525,6 @@ class Generation(): #Генерация вопроса
         return quest
 
     def generated_fake_answer(self, answer):
-        print("Правильный ответ: "+str(answer))
         answer_out = ''
         if answer in sign_for_action:
             list_sign = []
@@ -530,8 +532,8 @@ class Generation(): #Генерация вопроса
                 if num != answer:
                     list_sign.append(str(num))
             answer_out = random.choice(list_sign)
-        elif Generation.is_number(answer):
-            if Generation.is_float(answer):
+        elif Generation.is_number(str(answer)):
+            if Generation.is_float(str(answer)):
                 fractional_number_answer = list(generator['fractional_number_answer'])
                 answer = round(float(answer),fractional_number)
                 number = answer
@@ -552,7 +554,8 @@ class Generation(): #Генерация вопроса
                 if num != answer:
                     list_dictionary.append(str(num))
             answer_out = random.choice(list_dictionary)
-        
+        self.add_quest = " ("+answer_out+")"
+
         return answer_out
 
     def write_code_output(self, quest):
@@ -574,23 +577,23 @@ class Generation(): #Генерация вопроса
         if os.path.exists(path+"/quest"):
             os.remove(os.path.join("quest"))
 
-    def answer_true(self, os_out): #написать что важно после каждого ответа ставить endl или \n и :
+    def answer_true(self, os_out):
         os_out += " && " + path + "/quest"
-        ans = subprocess.check_output(os_out, shell=True, encoding=cmd_codepage, stderr=subprocess.STDOUT)
-        count_ans = self.counting(ans,":")
+        answer = subprocess.check_output(os_out, shell=True, encoding=cmd_codepage, stderr=subprocess.STDOUT)
+        count_ans = self.counting(answer,":")
         answers = []
         if count_ans == 0:
-            answers = str(ans).replace('\n','')
+            answers = str(answer).replace('\n','')
         else:
             index_first = 0
             index_middle = 0
             for i in range(count_ans):
-                index_first = ans.find(':',index_first)
-                index_last = ans.find('\n',index_first)
+                index_first = answer.find(':',index_first)
+                index_last = answer.find('\n',index_first)
                 if index_first != -1:
                     answers.append([])
-                    answers[i].append(str(ans[index_middle:index_first]))
-                    answers[i].append(str(ans[index_first+2:index_last]).replace('\n',''))
+                    answers[i].append(str(answer[index_middle:index_first]))
+                    answers[i].append(str(answer[index_first+2:index_last]).replace('\n',''))
                     index_first += 2
                     index_middle = index_last+1
 
@@ -622,12 +625,12 @@ class Generation(): #Генерация вопроса
                 index_first = tmp.find("note:",index_first)
             index_second = tmp.find("\n",index_first)
             index_last = tmp.find("|",index_second)
-            ans = tmp[index_second+1:index_last]
-            ans = re.findall('(\d+)',ans)
-            if ans != []:
+            answer = tmp[index_second+1:index_last]
+            answer = re.findall('(\d+)',answer)
+            if answer != []:
                 answers.append([])
                 answers[i].append(str(tmp[index_last+2:tmp.find("\n",index_last)]))
-                answers[i].append(str(ans[0]))
+                answers[i].append(str(answer[0]))
                 index_first = tmp.find("\n",index_last)
 
         return answers

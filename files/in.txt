@@ -1,1 +1,1 @@
-parallelepiped
+-49 34 24 -10 -27

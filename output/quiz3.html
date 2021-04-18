@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+        <title>Тест по программированию на C++</title>
+        <style>
+        body
+        {
+        margin-top: 20px;
+        margin-right: 20px;
+        margin-bottom: 20px;
+        margin-left: 20px;
+        }
+        h2
+        {
+        margin-left: 120px;
+        }
+        </style>
+        </head>
+        <body><h2>Вопрос №1</h2><div class="que truefalse deferredfeedback "><div class="content"><div class="formulation clearfix"><div class="qtext"><pre>1      #include &lt;iostream&gt;
+2      #include &lt;fstream&gt;
+3      int main() {
+4          FILE *in;
+5          int count = 0;
+6          float buffer;
+7          if ((in = fopen(&#34;files\\in.txt&#34;, &#34;r&#34;)) != NULL) {
+8              while (!feof(in)) {
+9                  fscanf(in,&#34;%f&#34;,&amp;buffer);
+10                  if (buffer &gt; 0) count++;
+11              }
+12              printf(&#34;Number of positive numbers: %d\n&#34;, count);
+13          }
+14          else puts(&#34;File empty\n&#34;);
+15          return 0;
+16      }</pre><br /><br />При компиляции программы результат будет: 2</div><br /><div class="ablock"><div class="answer"><div class="r0"><input type="radio" checked/><label>Да</label></div><div class="r0"><input type="radio" /><label>Нет</label></div></div></div></div></div></div></body></html><body><h2>Вопрос №2</h2><div class="que matching deferredfeedback "><div class="content"><div class="formulation clearfix"><div class="qtext"><pre>1      #include &lt;iostream&gt;
+2      int func(int a, int b) {{
+3          int c = 32;
+4          int result = a - c * b;
+5          return result;
+6      }
+7      int main() {
+8          int a = 31;
+9          int b = -43;
+10          std::cout &lt;&lt; &#34;result: &#34; &lt;&lt; func(a,b) &lt;&lt; &#34;\n&#34;;
+11          return 0;
+12      }</pre><br /><br />Сопоставьте ошибки со строчками кода: </div><br /><div class="ablock"><div class="answer"><label>int main() {</label><form action="formdata" method="post" name="form1"><select name="list1"><option>12</option><option>7</option></select></form><label>}</label><form action="formdata" method="post" name="form1"><select name="list1"><option>12</option><option>7</option></select></form></div></div></div></div></div></body></html><body><h2>Вопрос №3</h2><div class="que shortanswer deferredfeedback "><div class="content"><div class="formulation clearfix"><div class="qtext"><pre>1      #include &lt;iostream&gt;
+2      void func(int a, int b, int c) {
+3          int result = 0;
+4          while (result &lt; b) {
+5      	result += a;
+6          }
+7          std::cout &lt;&lt; &#34;result: &#34; &lt;&lt; result &lt;&lt; &#34;\n&#34;;
+8      }
+9      int main() {
+10          int a = 38;
+11          int b = 1;
+12          int c = a + b;
+13          func(a,b,c);
+14          return 0;
+15      }</pre><br /><br />Введите ответ программы result: </div><br /><div class="ablock"><span class="answer"><input type="text" size="80" class="form-control d-inline" value="38"/></span></div></div></div></div></body></html><body><h2>Вопрос №4</h2><div class="que matching deferredfeedback "><div class="content"><div class="formulation clearfix"><div class="qtext"><pre>1      #include &lt;iostream&gt;
+2      void func(float a, float b, float c) {
+3          float result = 0;
+4          while (result &lt; b) {
+5      	result += a;
+6          
+7          std::cout &lt;&lt; &#34;result: &#34; &lt;&lt; result &lt;&lt; &#34;\n&#34;;
+8      }
+9      int main() {
+10          float a = 23;
+11          float b = -19;
+12          float c = a / b;
+13          func(a,b,c);
+14          return 0;
+15      }</pre><br /><br />Сопоставьте ошибки со строчками кода: </div><br /><div class="ablock"><div class="answer"><label>int main() {</label><form action="formdata" method="post" name="form1"><select name="list1"><option>15</option><option>9</option></select></form><label>}</label><form action="formdata" method="post" name="form1"><select name="list1"><option>15</option><option>9</option></select></form></div></div></div></div></div></body></html><body><h2>Вопрос №5</h2><div class="que multichoice deferredfeedback "><div class="content"><div class="formulation clearfix"><div class="qtext"><pre>1      #include &lt;iostream&gt;
+2      #include &lt;cmath&gt;
+3      int main() {
+4          double a = -2;
+5          double b = 53;
+6          double c = 75;
+7          double x1, x2;
+8          if ((b*b - 4*a*c) &gt;= 0) {
+9              x1 = (-1*b + sqrt(b*b - 4*a*c)) / (2 * a);
+10              std::cout &lt;&lt; &#34;x1: &#34; &lt;&lt; x1 &lt;&lt; &#34;\n&#34;;
+11              x2 = (-1*b - sqrt(b*b - 4*a*c)) / (2 * a);
+12              std::cout &lt;&lt; &#34;x2: &#34; &lt;&lt; x2 &lt;&lt; &#34;\n&#34;;
+13          }
+14          else {
+15              std::cout &lt;&lt; &#34;The discriminant is less than 0&#34; &lt;&lt; &#34;\n&#34;;
+16          }
+17          return 0;
+18      }</pre><br /><br />Сопоставьте решения: </div><br /><div class="ablock"><div class="answer"><div class="r0"><input type="radio" checked/><label>-1.35</label></div><div class="r0"><input type="radio" checked/><label>27.85</label></div><div class="r0"><input type="radio" /><label>-2.35</label></div><div class="r0"><input type="radio" /><label>-2.35</label></div></div></div></div></div></div></body></html>
