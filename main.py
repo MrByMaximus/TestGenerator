@@ -3,7 +3,7 @@ from tkinter import *
 import tkinter as tk
 import sys, os
 import random
-import numpy
+from numpy import arange
 from functools import partial
 from quiz import Quiz
 from generation import Generation
@@ -127,6 +127,7 @@ class Main(tk.Tk): #Оконное приложение
             while quiz[2] == "[ERROR]":
                 mb.showerror("Ошибка", "Скомпилированный код из файла: {code} содержит ошибки".format(code = quiz[1]))
                 q.delete_file()
+                i += 1
                 quiz = generate.question_gen()
 
             self.quest.append(quiz[0])
@@ -143,6 +144,7 @@ class Main(tk.Tk): #Оконное приложение
             if type(self.answer[i]) == list:
                 count_matching = len(self.answer[i])
                 choice = random.randint(1,2)
+                choice = 1
                 for k in range(count_matching):
                     if Generation.is_float(str(self.answer[i][k][1])):
                         self.answer[i][k][1] = round(float(self.answer[i][k][1]),fractional_number)
@@ -154,9 +156,9 @@ class Main(tk.Tk): #Оконное приложение
                     list_answers = []
                     list_choice = []
                     for k in range(count_matching):
-                        list_answers.append(self.answer[i][k][1])
+                        list_answers.append(str(self.answer[i][k][1]))
                         list_choice.append(self.answer[i][k][0])
-                        self.answer_first_matching_check[i].append(self.answer[i][k][1])
+                        self.answer_first_matching_check[i].append(str(self.answer[i][k][1]))
                     list_answers_out = list_answers
                     random.shuffle(list_answers)
                     column = 1
@@ -187,7 +189,7 @@ class Main(tk.Tk): #Оконное приложение
                         for k in range(count_matching):
                             if Generation.is_float(str(self.answer[i][k][1])):
                                 number = self.answer[i][k][1]
-                                list_numbers.append(list(numpy.arange(number-fractional_number_answer[0], number+fractional_number_answer[1], 1 / (10 ** fractional_number))))
+                                list_numbers.append(list(arange(number-fractional_number_answer[0], number+fractional_number_answer[1], 1 / (10 ** fractional_number))))
                                 list_numbers[k] = [round(v,fractional_number) for v in list_numbers[k]]
                             else:                               
                                 number = int(self.answer[i][k][1])
@@ -221,7 +223,7 @@ class Main(tk.Tk): #Оконное приложение
                     if Generation.is_float(str(self.answer[i])):
                         fractional_number_answer = list(generator['fractional_number_answer'])
                         number = self.answer[i]
-                        list_numbers = list(numpy.arange(number-fractional_number_answer[0], number+fractional_number_answer[1], 1 / (10 ** fractional_number))) #использовать random а не numpy
+                        list_numbers = list(arange(number-fractional_number_answer[0], number+fractional_number_answer[1], 1 / (10 ** fractional_number)))
                         list_numbers = [round(v,fractional_number) for v in list_numbers]
                     else:
                         number_answer = list(generator['number_answer'])
@@ -303,7 +305,7 @@ class Main(tk.Tk): #Оконное приложение
                 self.input_second_answer_matching[i][k].config(state="disabled",bg="lightgreen")
             else:
                 self.input_first_answer_matching[i][k].config(state="disabled",bg="tomato")
-                self.input_second_answer_matching[i][k].config(state="disabled",bg="tomato") 
+                self.input_second_answer_matching[i][k].config(state="disabled",bg="tomato")
         if right_result == count_matching:
             self.score += 1
             self.frame[i].config(bg="lightgreen")

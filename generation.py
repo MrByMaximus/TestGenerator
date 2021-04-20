@@ -27,9 +27,8 @@ class Generation(): #Генерация вопроса
         path_code = path+'/cods'
         code = random.choice(list(filter(lambda x: x.endswith('.txt'), os.listdir(path_code))))
         type_quiz = random.randint(1,5) #логические, синтаксические, при результате выдать ответ, стандарт вопрос, да/нет
-        #type_quiz = 2
-        #code = 'code_2.txt'
-
+        type_quiz = 4
+        code = "code_6.txt"
         if type_quiz == 3 and not code.replace(".txt","") in generator['type_quiz_exception']: #самостоятельно определять
             type_quiz = 4
 
@@ -111,7 +110,7 @@ class Generation(): #Генерация вопроса
                     ans_out = self.generated_fake_answer(ans_find)
                 if Generation.is_float(ans_out):
                     ans_out = round(float(ans_out),fractional_number)
-                quiz = "При компиляции программы результат будет: "+str(ans_out)
+                quiz = "После выполнении программы результат будет: "+str(ans_out)
         
         return [code_out,answer,quiz,type_quiz]
 
@@ -347,13 +346,12 @@ class Generation(): #Генерация вопроса
         return quest
 
     def type_code_logic(self, quest):
-        choice = random.randint(1,2) #нет смысла в error_logic
-        #choice = 1
+        choice = random.randint(1,3)
         quest_out = ''
         out = ''
         out_error = []
         not_error = 0
-        #error_choice = random.choice(generator['error_logic'])
+        error_choice = random.choice(generator['error'])
 
         if choice == 1 and (quest.find("int result") != -1 or quest.find("float result") != -1) and (quest.find("int func") != -1 or quest.find("float func") != -1): #удаляет return result
             index = quest.find("return result;")
@@ -362,8 +360,8 @@ class Generation(): #Генерация вопроса
             error_request = self.error_line(quest,"==","=")
             quest_out = error_request[0]
             out = error_request[1]
-        #elif quest.find(error_choice) != -1 and choice == 3:
-            #quest = self.type_code_error(quest, error_choice)
+        elif quest.find(error_choice) != -1 and choice == 3:
+            quest = self.type_code_error(quest, error_choice)
         else:
             not_error = 1
 
@@ -374,12 +372,11 @@ class Generation(): #Генерация вопроса
 
     def type_code_syntax(self, quest):
         choice = random.randint(1,7)
-        choice = 7
         quest_out = ''
         out = ''
         out_error = []
         not_error = 0
-        error_choice = random.choice(generator['error_syntax'])
+        error_choice = random.choice(generator['error'])
 
         if (quest.find("int func") != -1 or quest.find("float func") != -1) and choice == 1:
             count_func = self.counting(quest, "func")
@@ -613,7 +610,7 @@ class Generation(): #Генерация вопроса
         index = tmp.find(" In function 'void func")
         if index != -1:
             tmp = self.delete_error_code(tmp,index)
-        print(tmp)
+        #print(tmp)
         count_ans = self.counting(tmp,"error:") + self.counting(tmp,"warning:") + self.counting(tmp,"note:")
         answers = []
         index_first = 0
