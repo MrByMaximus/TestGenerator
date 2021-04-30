@@ -16,7 +16,7 @@ class Quiz: #Запись в html и xml
         file = open(htmlFilename, 'w', encoding="utf-8")
         file.close()
 
-    def CheckChoiceList(self, choiceList, count_multichoice, count_true):
+    def checkChoiceList(self, choiceList, count_multichoice, count_true):
         if len(choiceList) > count_multichoice:
             tmp = choiceList[count_true:]
             random.shuffle(tmp)
@@ -68,7 +68,7 @@ class Quiz: #Запись в html и xml
         self.edit_open('</body></html>')
 
     def addMultipleChoiceQuestion(self, name, question_title, question, choiceList, count_multichoice, count_true):
-        choiceList = self.CheckChoiceList(choiceList, count_multichoice, count_true)
+        choiceList = self.checkChoiceList(choiceList, count_multichoice, count_true)
         with redirect_stdout(self.xmlFilename):
             self.questionHeader("multichoice", name, question, question_title)
             for item in choiceList[:count_true]:

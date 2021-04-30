@@ -7,7 +7,7 @@ import ctypes
 import numpy
 import re
 
-path = os.getcwd()
+path = os.getcwd() #дать пользователю самому выбрать путь к рабочей директории
 path_compile = path+'/quest.cpp'
 path_output = path+'/quest.txt'
 generator = open(path+'/generator.conf','r', encoding="utf-8")
@@ -16,7 +16,7 @@ sign_for_action = generator['sign_for_action']
 fractional_number = generator['fractional_number']
 dictionary = generator['dictionary']
 count_multichoice = generator['count_multichoice']
-cmd_codepage = os.device_encoding(1) or ctypes.windll.kernel32.GetOEMCP()
+cmd_codepage = os.device_encoding(1) or ctypes.windll.kernel32.GetOEMCP() #Прочитать подробнее за что отвечает
 
 class Generation(): #Генерация вопроса
     def __init__(self):
@@ -25,10 +25,15 @@ class Generation(): #Генерация вопроса
 
     def question_gen(self):
         path_code = path+'/cods'
-        code = random.choice(list(filter(lambda x: x.endswith('.txt'), os.listdir(path_code))))
-        type_quiz = random.randint(1,5) #логические, синтаксические, при результате выдать ответ, стандарт вопрос, да/нет
-        type_quiz = 4
-        code = "code_6.txt"
+        if (generator['code'] == 0):
+            code = random.choice(list(filter(lambda x: x.endswith('.txt'), os.listdir(path_code))))
+        else:
+            code = str(generator['code']) + '.txt'
+        if (generator['type_quiz'] == 0):
+            type_quiz = random.randint(1,5) #логические, синтаксические, при результате выдать ответ, стандарт вопрос, да/нет
+        else:
+            type_quiz = generator['type_quiz']
+
         if type_quiz == 3 and not code.replace(".txt","") in generator['type_quiz_exception']: #самостоятельно определять
             type_quiz = 4
 
@@ -82,7 +87,7 @@ class Generation(): #Генерация вопроса
                     quiz = "Сопоставьте решения: "
                     answer = answers
             elif quest_out[3] == 0 and (type_quiz == 1 or type_quiz == 2):
-                quiz = "Введите строчку кода, где допущена ошибка: "
+                quiz = "Введите номер(-а) строчки(-ек) кода, где допущена ошибка: "
                 if quest_out[2] != '':
                     answer = str(quest_out[2])
                 else:
@@ -90,7 +95,6 @@ class Generation(): #Генерация вопроса
                     if len(answers) == 1:
                         answer = str(answers[0][1])
                     else:
-                        quiz = "Сопоставьте ошибки со строчками кода: "
                         answer = answers
             elif type_quiz == 5:
                 chance = random.randint(1,2)
@@ -576,7 +580,7 @@ class Generation(): #Генерация вопроса
 
     def answer_true(self, os_out):
         os_out += " && " + path + "/quest"
-        answer = subprocess.check_output(os_out, shell=True, encoding=cmd_codepage, stderr=subprocess.STDOUT)
+        answer = subprocess.check_output(os_out, shell=True, encoding=cmd_codepage, stderr=subprocess.STDOUT) #shell чувствителен к пути, исправить
         count_ans = self.counting(answer,":")
         answers = []
         if count_ans == 0:
@@ -597,7 +601,7 @@ class Generation(): #Генерация вопроса
         return answers
 
     def answer_false(self, os_out):
-        process = subprocess.Popen(os_out, shell=True, stdout=subprocess.PIPE, encoding=cmd_codepage, stderr=subprocess.STDOUT)
+        process = subprocess.Popen(os_out, shell=True, encoding=cmd_codepage, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         tmp = process.stdout.read()
         tmp = tmp.replace(path+"/quest.cpp:","")
         tmp = tmp.replace(" In function 'int main()':\n","")

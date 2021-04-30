@@ -1,8 +1,15 @@
 #include <iostream>
 int func(int a, int b) {
     int c = {number};
-    int result = {-}a {action} b{^}b {action} a{^}a {action} b {action} c{^}a {action} c {action} b{^}b {action} a {action} c{^}b {action} c {action} a{^}c {action} a {action} b{^}c {action} b {action} a{*};
-    return result;
+    int result = {-}a {action} b;
+    {^}b {action} a;
+    {^}a {action} b {action} c;
+    {^}a {action} c {action} b;
+    {^}b {action} a {action} c;
+    {^}b {action} c {action} a;
+    {^}c {action} a {action} b;
+    {^}c {action} b {action} a;
+    {*}return result;
 }
 int main() {
     int a = {number};

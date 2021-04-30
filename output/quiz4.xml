@@ -1,0 +1,33 @@
+<?xml version="1.0" ?><quiz>
+<question type="matching">
+ <name>
+  <text>Вопрос №4</text>
+ </name>
+ <questiontext format="html">
+  <text><![CDATA[<pre>
+1      #include &lt;iostream&gt;
+2      #include &lt;cmath&gt;
+3      int main() {
+4          double a = -9;
+5          double b = -31;
+6          double c = 56;
+7          double x1, x2;
+8          if ((b*b - 4*a*c) &gt;= 0) {
+9              x1 = (-1*b + sqrt(b*b - 4*a*c)) / (2 * a);
+10              std::cout &lt;&lt; &#34;x1: &#34; &lt;&lt; x1 &lt;&lt; &#34;\n&#34;;
+11              x2 = (-1*b - sqrt(b*b - 4*a*c)) / (2 * a);
+12              std::cout &lt;&lt; &#34;x2: &#34; &lt;&lt; x2 &lt;&lt; &#34;\n&#34;;
+13          }
+14          else {
+15              std::cout &lt;&lt; &#34;The discriminant is less than 0&#34; &lt;&lt; &#34;\n&#34;;
+16          }
+17          return 0;
+18      }
+</pre><br /><br />Сопоставьте решения: ]]>
+  </text>
+ </questiontext>
+ <subquestion><text>x1</text><answer><text>-4.75</text></answer></subquestion>
+ <subquestion><text>x2</text><answer><text>1.31</text></answer></subquestion>
+<shuffleanswers>true</shuffleanswers>
+</question>
+</quiz>
