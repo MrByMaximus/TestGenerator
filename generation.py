@@ -7,34 +7,31 @@ import ctypes
 import numpy
 import re
 
-path = os.getcwd() #дать пользователю самому выбрать путь к рабочей директории
-path_compile = path+'/quest.cpp'
-path_output = path+'/quest.txt'
-generator = open(path+'/generator.conf','r', encoding="utf-8")
-generator = ast.literal_eval(generator.read())
-sign_for_action = generator['sign_for_action']
-fractional_number = generator['fractional_number']
-dictionary = generator['dictionary']
-count_multichoice = generator['count_multichoice']
-cmd_codepage = os.device_encoding(1) or ctypes.windll.kernel32.GetOEMCP() #Прочитать подробнее за что отвечает
-
 class Generation(): #Генерация вопроса
-    def __init__(self):
+    def __init__(self, path):
         super().__init__()
         self.add_quest = ''
+        self.path = path
+        self.path_compile = self.path+'/quest.cpp'
+        self.path_output = self.path+'/quest.txt'
+        self.generator = open(self.path+'/generator.conf','r', encoding="utf-8")
+        self.generator = ast.literal_eval(self.generator.read())
+        self.sign_for_action = self.generator['sign_for_action']
+        self.fractional_number = self.generator['fractional_number']
+        self.dictionary = self.generator['dictionary']
 
     def question_gen(self):
-        path_code = path+'/cods'
-        if (generator['code'] == 0):
+        path_code = self.path+'/'+self.generator['path_cods']
+        if (self.generator['code'] == 0):
             code = random.choice(list(filter(lambda x: x.endswith('.txt'), os.listdir(path_code))))
         else:
-            code = str(generator['code']) + '.txt'
-        if (generator['type_quiz'] == 0):
+            code = str(self.generator['code']) + '.txt'
+        if (self.generator['type_quiz'] == 0):
             type_quiz = random.randint(1,5) #логические, синтаксические, при результате выдать ответ, стандарт вопрос, да/нет
         else:
-            type_quiz = generator['type_quiz']
+            type_quiz = self.generator['type_quiz']
 
-        if type_quiz == 3 and not code.replace(".txt","") in generator['type_quiz_exception']: #самостоятельно определять
+        if type_quiz == 3 and not code.replace(".txt","") in self.generator['type_quiz_exception']: #самостоятельно определять
             type_quiz = 4
 
         file = open(path_code+"/"+code,'r')
@@ -61,7 +58,7 @@ class Generation(): #Генерация вопроса
             self.write_code_output(quest_out[1])
             os_out = self.write_code(quest_out[0])
 
-        with open(self.number_lines(path_output), "r") as f:
+        with open(self.number_lines(self.path_output), "r") as f:
                 code_out = f.read()
         
         check = subprocess.call(os_out, shell=True, stdout=os.open(os.devnull, os.O_WRONLY), stderr=subprocess.STDOUT)
@@ -72,7 +69,7 @@ class Generation(): #Генерация вопроса
             if type_quiz == 3 and quest_out[3] == 0:
                 ans_out = self.answer_true(os_out)[0][1]
                 if Generation.is_float(ans_out):
-                    ans_out = round(float(ans_out),fractional_number)
+                    ans_out = round(float(ans_out),self.fractional_number)
                 quiz = "При каком значении "+quest_out[4]+" программа выдаст результат: "+str(ans_out)
                 answer = str(quest_out[2])
             elif type_quiz == 4 or quest_out[3] == 1: #если не найдется ошибки или не выполниться 3 тип вопроса, то сгенерируется стандартный вопрос
@@ -113,7 +110,7 @@ class Generation(): #Генерация вопроса
                     answer = "no"
                     ans_out = self.generated_fake_answer(ans_find)
                 if Generation.is_float(ans_out):
-                    ans_out = round(float(ans_out),fractional_number)
+                    ans_out = round(float(ans_out),self.fractional_number)
                 quiz = "После выполнении программы результат будет: "+str(ans_out)
         
         return [code_out,answer,quiz,type_quiz]
@@ -189,7 +186,7 @@ class Generation(): #Генерация вопроса
         check_division = 0
         out = ''
         out2 = ''
-        generated_number = list(generator['generated_number'])
+        generated_number = list(self.generator['generated_number'])
         not_error = 0
 
         if count_number != 0 and choice == 1:
@@ -216,7 +213,7 @@ class Generation(): #Генерация вопроса
                     index2 = quest_out.find("{action}")
                     quest = quest[:index+len("{action}")-1] + str(i) + quest[index+len("{action}")-1:]
                     quest_out = quest_out[:index2+len("{action}")-1] + str(i) + quest_out[index2+len("{action}")-1:]
-                    action.append(str(random.choice(sign_for_action)))
+                    action.append(str(random.choice(self.sign_for_action)))
                     quest = quest.replace("{action"+str(i)+"}", action[i])
                     quest_out = quest_out.replace("{action"+str(i)+"}", action[i])
                     if action[i] == '/':
@@ -231,7 +228,7 @@ class Generation(): #Генерация вопроса
                 index2 = quest_out.find("{action}")
                 quest = quest[:index+len("{action}")-1] + str(i) + quest[index+len("{action}")-1:]
                 quest_out = quest_out[:index2+len("{action}")-1] + str(i) + quest_out[index2+len("{action}")-1:]
-                action.append(str(random.choice(sign_for_action)))
+                action.append(str(random.choice(self.sign_for_action)))
                 quest = quest.replace("{action"+str(i)+"}", action[j])
                 if action[i] == '/':
                     check_division = 1
@@ -257,7 +254,7 @@ class Generation(): #Генерация вопроса
             for i in range(count_dictionary):
                 index = quest.find("{dictionary}")
                 quest = quest[:index+len("{dictionary}")-1] + str(i) + quest[index+len("{dictionary}")-1:]
-                dictionary_list.append(random.choice(dictionary))
+                dictionary_list.append(random.choice(self.dictionary))
                 quest = quest.replace("{dictionary"+str(i)+"}", dictionary_list[i])
             quest_out = quest
             if quest.find("{letter}") != -1:
@@ -294,7 +291,7 @@ class Generation(): #Генерация вопроса
         out = ''
         k = 1
         check = 0
-        with open(path_compile, 'r') as fp:
+        with open(self.path_compile, 'r') as fp:
             for n, line in enumerate(fp, 1):
                 if line.find(error_delete) != -1:
                     if k == num_error:
@@ -355,7 +352,7 @@ class Generation(): #Генерация вопроса
         out = ''
         out_error = []
         not_error = 0
-        error_choice = random.choice(generator['error'])
+        error_choice = random.choice(self.generator['error'])
 
         if choice == 1 and (quest.find("int result") != -1 or quest.find("float result") != -1) and (quest.find("int func") != -1 or quest.find("float func") != -1): #удаляет return result
             index = quest.find("return result;")
@@ -380,7 +377,7 @@ class Generation(): #Генерация вопроса
         out = ''
         out_error = []
         not_error = 0
-        error_choice = random.choice(generator['error'])
+        error_choice = random.choice(self.generator['error'])
 
         if (quest.find("int func") != -1 or quest.find("float func") != -1) and choice == 1:
             count_func = self.counting(quest, "func")
@@ -439,7 +436,7 @@ class Generation(): #Генерация вопроса
                         quest = quest.replace('{replace_item}', '')
                         break
                     elif choice_type == 2:
-                        quest = quest.replace('{replace_item}', str(random.choice(generator['generated_number']))+type_id)
+                        quest = quest.replace('{replace_item}', str(random.choice(self.generator['generated_number']))+type_id)
                         break
                     else:
                         quest = quest.replace('{replace_item}', str(random.choice(error_replace_type)))
@@ -478,7 +475,7 @@ class Generation(): #Генерация вопроса
         index = 0
 
         if count_number != 0: #генерация чисел
-            generated_number = list(generator['generated_number'])
+            generated_number = list(self.generator['generated_number'])
             for i in range(count_number):
                 index = quest.find("{number}")
                 quest = quest[:index+len("{number}")-1] + str(i) + quest[index+len("{number}")-1:]
@@ -487,13 +484,13 @@ class Generation(): #Генерация вопроса
             action = []
             for i in range(count_action):
                 index = quest.find("{action}")
-                action.append(str(random.choice(sign_for_action)))
+                action.append(str(random.choice(self.sign_for_action)))
                 if action[i] == '/':
                     check_division = 1
                 quest = quest[:index+len("{action}")-1] + str(i) + quest[index+len("{action}")-1:]
                 quest = quest.replace("{action"+str(i)+"}", action[i])
             if check_division == 1:
-                self.add_quest = " (Округлите до "+str(1 / (10 ** generator['fractional_number']))+")"
+                self.add_quest = " (Округлите до "+str(1 / (10 ** self.fractional_number))+")"
                 quest = quest.replace("int","float")
                 quest = quest.replace("float main","int main")        
         if count_dictionary != 0: #словарь слов
@@ -501,17 +498,17 @@ class Generation(): #Генерация вопроса
             for i in range(count_dictionary):
                 index = quest.find("{dictionary}")
                 quest = quest[:index+len("{dictionary}")-1] + str(i) + quest[index+len("{dictionary}")-1:]
-                dictionary_list.append(random.choice(dictionary))
-                quest = quest.replace("{dictionary"+str(i)+"}", dictionary[i])
+                dictionary_list.append(random.choice(self.dictionary))
+                quest = quest.replace("{dictionary"+str(i)+"}", self.dictionary[i])
             if quest.find("{letter}") != -1:
                 letter = list(dictionary_list[random.randint(0, count_dictionary-1)])
                 quest = quest.replace("{letter}",random.choice(letter))
         if quest.find("<fstream>") != -1:
-            path_files = path+'/files'
+            path_files = self.path+'/'+self.generator['files']
             file = open(path_files+"/in.txt",'w', encoding="utf-8")
             if quest.find("count") != -1:
-                number_of_generated_numbers = generator['number_of_generated_numbers']
-                generated_number = list(generator['generated_number'])
+                number_of_generated_numbers = self.generator['number_of_generated_numbers']
+                generated_number = list(self.generator['generated_number'])
                 numbers = ''
                 for i in range(number_of_generated_numbers):
                     numbers += str(random.randint(generated_number[0], generated_number[1]))
@@ -519,7 +516,7 @@ class Generation(): #Генерация вопроса
                         numbers += ' '
                 file.write(numbers)
             elif quest.find("line") != -1:
-                line = random.choice(dictionary)
+                line = random.choice(self.dictionary)
                 file.write(line)
             file.close()
             
@@ -527,21 +524,21 @@ class Generation(): #Генерация вопроса
 
     def generated_fake_answer(self, answer):
         answer_out = ''
-        if answer in sign_for_action:
+        if answer in self.sign_for_action:
             list_sign = []
-            for num in sign_for_action:
+            for num in self.sign_for_action:
                 if num != answer:
                     list_sign.append(str(num))
             answer_out = random.choice(list_sign)
         elif Generation.is_number(str(answer)):
             if Generation.is_float(str(answer)):
-                fractional_number_answer = list(generator['fractional_number_answer'])
-                answer = round(float(answer),fractional_number)
+                fractional_number_answer = list(self.generator['fractional_number_answer'])
+                answer = round(float(answer),self.fractional_number)
                 number = answer
-                list_numbers = list(numpy.arange(number-fractional_number_answer[0], number+fractional_number_answer[1], 1 / (10 ** fractional_number)))
-                list_numbers = [round(v,fractional_number) for v in list_numbers]
+                list_numbers = list(numpy.arange(number-fractional_number_answer[0], number+fractional_number_answer[1], 1 / (10 ** self.fractional_number)))
+                list_numbers = [round(v,self.fractional_number) for v in list_numbers]
             else:
-                number_answer = list(generator['number_answer'])
+                number_answer = list(self.generator['number_answer'])
                 number = int(answer)
                 list_numbers = list(range(number-number_answer[0], number+number_answer[1]))
             list_number = []
@@ -549,9 +546,9 @@ class Generation(): #Генерация вопроса
                 if num != number:
                     list_number.append(str(num))
             answer_out = random.choice(list_number)
-        elif answer in dictionary:
+        elif answer in self.dictionary:
             list_dictionary = []
-            for num in dictionary:
+            for num in self.dictionary:
                 if num != answer:
                     list_dictionary.append(str(num))
             answer_out = random.choice(list_dictionary)
@@ -560,27 +557,27 @@ class Generation(): #Генерация вопроса
         return answer_out
 
     def write_code_output(self, quest):
-        file = open(path_output,'w', encoding="utf-8")
+        file = open(self.path_output,'w', encoding="utf-8")
         file.write(quest)
         file.close()
 
     def write_code(self, quest):
-        file = open(path_compile,'w', encoding="utf-8")
+        file = open(self.path_compile,'w', encoding="utf-8")
         file.write(quest)
         file.close()
-        return "g++ " + path + "/quest.cpp -o " + path + "/quest"
+        return "g++ " + self.path + "/quest.cpp -o " + self.path + "/quest"
 
     def delete_file(self):
-        os.remove(os.path.join(path_compile))
-        os.remove(os.path.join(path_output))
-        if os.path.exists(path+"/quest.exe"):
+        os.remove(os.path.join(self.path_compile))
+        os.remove(os.path.join(self.path_output))
+        if os.path.exists(self.path+"/quest.exe"):
             os.remove(os.path.join("quest.exe"))
-        if os.path.exists(path+"/quest"):
+        if os.path.exists(self.path+"/quest"):
             os.remove(os.path.join("quest"))
 
     def answer_true(self, os_out):
-        os_out += " && " + path + "/quest"
-        answer = subprocess.check_output(os_out, shell=True, encoding=cmd_codepage, stderr=subprocess.STDOUT) #shell чувствителен к пути, исправить
+        os_out += " && " + self.path + "/quest"
+        answer = subprocess.check_output(os_out, shell=True, encoding="utf-8", stderr=subprocess.STDOUT) #shell чувствителен к пути, исправить
         count_ans = self.counting(answer,":")
         answers = []
         if count_ans == 0:
@@ -601,9 +598,9 @@ class Generation(): #Генерация вопроса
         return answers
 
     def answer_false(self, os_out):
-        process = subprocess.Popen(os_out, shell=True, encoding=cmd_codepage, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        process = subprocess.Popen(os_out, shell=True, encoding="utf-8", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         tmp = process.stdout.read()
-        tmp = tmp.replace(path+"/quest.cpp:","")
+        tmp = tmp.replace(self.path+"/quest.cpp:","")
         tmp = tmp.replace(" In function 'int main()':\n","")
         index = tmp.find(" In function 'int func")
         if index != -1:
@@ -614,7 +611,6 @@ class Generation(): #Генерация вопроса
         index = tmp.find(" In function 'void func")
         if index != -1:
             tmp = self.delete_error_code(tmp,index)
-        #print(tmp)
         count_ans = self.counting(tmp,"error:") + self.counting(tmp,"warning:") + self.counting(tmp,"note:")
         answers = []
         index_first = 0

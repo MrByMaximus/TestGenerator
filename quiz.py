@@ -38,6 +38,17 @@ class Quiz: #Запись в html и xml
         self.addHtmlAnswerBlockShortAnswer(answer)
         self.edit_open('</body></html>')
     
+    def addNumericalResponseQuestion(self, name, question_title, question, answer):
+        with redirect_stdout(self.xmlFilename):
+            self.questionHeader("numerical", name, question, question_title)
+            xml = Template('<usecase>0</usecase>\n<answer fraction="100" format="moodle_auto_format"><text>{{answer}}</text></answer>\n</question>')
+            print(str(xml.render(answer=answer)))
+
+        self.addHtmlHeader()
+        self.addHtmlQuestionBlock(name, question, question_title, 'numerical')
+        self.addHtmlAnswerBlockShortAnswer(answer)
+        self.edit_open('</body></html>')
+
     def addTrueFalseQuestion(self, name, question_title, question, choiceList):
         #choiceList = self.CheckChoiceList(choiceList, 2, 1)        
         with redirect_stdout(self.xmlFilename):
