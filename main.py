@@ -29,19 +29,21 @@ class Main(tk.Tk): #Оконное приложение
     def __init__(self):
         super().__init__()
         self.path = StringVar()
-        #self.path.set(os.getcwd())
         self.title("Генерация тестов по программированию")
         self.generator_test()
 
     def generator_test(self):
         self.resizable(width=False, height=False)
-        self.geometry("400x140")
+        self.geometry("400x170")
         self.frame_out = tk.Frame(self)
         self.frame_out.place(relx=0.01, rely=0.01, relwidth=0.98, relheight=0.98) 
-        self.entry_path = tk.Entry(self.frame_out, width=30, textvariable=self.path)
+        self.btn_license = tk.Button(self.frame_out, text="Лицензия", command=self.open_license)
+        self.btn_license.pack()  
+        self.entry_path = tk.Entry(self.frame_out, width=30, textvariable=self.path)     
         self.entry_path.pack(fill=BOTH,pady=5)
-        self.button_path = tk.Button(self.frame_out, text='Выбрать рабочую папку', command=self.choose_path)
+        self.button_path = tk.Button(self.frame_out, text='Выбрать рабочую папку', command=self.choose_path)       
         self.button_path.pack()
+
         self.score = 0
         self.quest = []
         self.quest_title = []
@@ -58,6 +60,22 @@ class Main(tk.Tk): #Оконное приложение
         self.question_title = []
         self.frame = []
         self.button_answer = []
+
+    def open_license(self):
+        mb.showinfo("Лицензия","""Copyright 2021 Gildenberg Maksim
+
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program. If not, see <https://www.gnu.org/licenses/>.""")
 
     def choose_path(self):
         filename = filedialog.askdirectory()
@@ -83,7 +101,7 @@ class Main(tk.Tk): #Оконное приложение
                 self.btn_gen = tk.Button(self.frame_out, text='Сгенерировать тест', command=self.create_quest)
                 self.btn_gen.pack()
             else:
-                mb.showerror("Ошибка", "Конфигурационный файл имеет ошибки в параметрах!")            
+                mb.showerror("Ошибка", "Конфигурационный файл имеет ошибки в параметрах!")
         else:
             mb.showerror("Ошибка", "Конфигурационный файл в папке не найден!")
 
